@@ -71,7 +71,9 @@ export async function openSourcePage({ pdfPage, page, quote, chapter }) {
   if (!pdfDoc) throw new Error("NO_PDF");
 
   const overlay = document.createElement("div");
-  overlay.className = "pdf-overlay";
+  overlay.className = document.documentElement.classList.contains("phone")
+    ? "pdf-overlay phone"
+    : "pdf-overlay";
   overlay.innerHTML = `
     <div class="pdf-modal" role="dialog" aria-label="Source page from textbook">
       <div class="pdf-toolbar">

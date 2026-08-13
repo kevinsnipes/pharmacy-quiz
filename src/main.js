@@ -1,9 +1,52 @@
 import "./style.css";
 import { loadMastery, saveMastery, savePdfBlob, loadPdfBlob, clearPdfBlob } from "./storage.js";
 import { hasTextbook, loadTextbookFromBlob, openSourcePage, unloadTextbook } from "./pdfViewer.js";
+import {
+  loadStudy,
+  saveStudy,
+  makeStudyId,
+  unionIds,
+  parseIncoming,
+  resumeUrl,
+  writeUrl,
+} from "./progress.js";
 
 const SESSION_SIZE = 20;
 const app = document.querySelector("#app");
+
+let phoneMode = false;
+let lastState = null;
+
+function isPhone() {
+  const ua = navigator.userAgent || "";
+  if (/Android.+Mobile|iPhone|iPod|webOS|BlackBerry|IEMobile|Opera Mini/i.test(ua)) return true;
+  if (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1) return true;
+  if (/iPad|Android/i.test(ua) && window.innerWidth <= 1024) return true;
+  if (window.matchMedia("(pointer: coarse) and (hover: none)").matches && window.innerWidth <= 900) {
+    return true;
+  }
+  return false;
+}
+
+function syncPhoneClass() {
+  phoneMode = isPhone();
+  document.documentElement.classList.toggle("phone", phoneMode);
+  return phoneMode;
+}
+
+syncPhoneClass();
+window.addEventListener("resize", () => {
+  const next = isPhone();
+  if (next !== phoneMode && lastState) {
+    render(lastState);
+  } else {
+    syncPhoneClass();
+  }
+});
+window.addEventListener("orientationchange", () => {
+  if (lastState) render(lastState);
+  else syncPhoneClass();
+});
 
 function shuffle(items) {
   const copy = [...items];
@@ -23,12 +66,22 @@ function remainingPool(bank, mastered, excludeIds = []) {
   return fresh.length ? fresh : open;
 }
 
+function persist(state) {
+  try {
+    const id = saveStudy(state.studyId, state.mastered);
+    state.studyId = id;
+    saveMastery(state.mastered);
+    writeUrl(id, state.mastered);
+  } catch {
+    state.notice = state.notice || "Could not save locally. Copy the continue link so you do not lose progress.";
+  }
+}
+
 function pickSet(bank, mastered, excludeIds = []) {
   let pool = remainingPool(bank, mastered, excludeIds);
   let reset = false;
   if (!pool.length) {
     mastered.length = 0;
-    saveMastery(mastered);
     pool = [...bank];
     reset = true;
   }
@@ -44,10 +97,9 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-let lastState = null;
-
 function render(state) {
   lastState = state;
+  const phone = syncPhoneClass();
   const checkedCount = state.answers.filter((a) => a.checked).length;
   const correctCount = state.answers.filter((a) => a.checked && a.correct).length;
   const remaining = state.bank.filter((q) => !state.mastered.includes(q.id)).length;
@@ -60,12 +112,21 @@ function render(state) {
   app.innerHTML = `
     <div class="book-bar ${hasTextbook() ? "ready" : ""}">
       <div class="book-copy">
-        <strong>${hasTextbook() ? "Textbook ready in this browser" : "Load textbook PDF"}</strong>
-        <span>${
-          hasTextbook()
-            ? "After you check an answer, use Open page to jump there and highlight the source."
-            : "Choose your copy of The APhA Complete Review for the FPGEE (pharmacy_book.pdf). It is stored only in this browser so source links can open the page and highlight the answer."
-        }</span>
+        <strong>${hasTextbook() ? "Textbook ready" : "Load textbook PDF"}</strong>
+        <span class="copy-pc">
+          ${
+            hasTextbook()
+              ? "After you check an answer, use Open page to jump there and highlight the source."
+              : "Choose your copy of The APhA Complete Review for the FPGEE (pharmacy_book.pdf). It is stored only in this browser so source links can open the page and highlight the answer."
+          }
+        </span>
+        <span class="copy-phone">
+          ${
+            hasTextbook()
+              ? "Check an answer, then tap Open page to highlight the source."
+              : "Choose pharmacy_book.pdf on this phone. Needed only to jump to highlighted pages."
+          }
+        </span>
       </div>
       <div class="book-actions">
         <label class="regen" for="pdf-file">${hasTextbook() ? "Replace PDF" : "Load textbook PDF"}</label>
@@ -75,14 +136,40 @@ function render(state) {
     </div>
     <header class="masthead">
       <p class="kicker">Professional pharmacy practice quiz</p>
-      <h1>FPGEE Review: 20-Question Challenge</h1>
-      <p class="lede">
+      <h1>${phone ? "FPGEE 20-Question Challenge" : "FPGEE Review: 20-Question Challenge"}</h1>
+      <p class="lede copy-pc">
         A pool of <strong>${state.bank.length}</strong> unique items covers the full textbook.
         Each session draws 20 at random from questions you have not yet answered correctly.
         Correct items leave the pool until every question is mastered; missed items are shuffled back in.
       </p>
+      <p class="lede copy-phone">
+        20 random items from ${state.bank.length}. Correct answers leave the pool; misses go back in.
+      </p>
       <div class="controls">
         <button class="regen" type="button" id="regen">Regenerate questions</button>
+      </div>
+      <div class="study-bar">
+        <div>
+          <p class="study-label">Your study ID (no password)</p>
+          <p class="study-id" id="study-id">${escapeHtml(state.studyId || "")}</p>
+          <p class="study-help copy-pc">Same ID + continue link restores progress on your phone. The textbook PDF is still loaded once per device.</p>
+          <p class="study-help copy-phone">Paste a continue link from your computer, or copy this device’s link to keep progress.</p>
+        </div>
+        <div class="study-actions">
+          <button class="ghost" type="button" id="copy-link">Copy continue link</button>
+          <button class="ghost" type="button" id="toggle-qr">Phone QR</button>
+        </div>
+        <form class="study-form" id="study-form">
+          <label for="study-input">Continue on this device</label>
+          <div class="study-row">
+            <input id="study-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Paste study ID or continue link" />
+            <button class="regen" type="submit">Continue</button>
+          </div>
+        </form>
+        <div class="qr-wrap ${state.showQr ? "" : "hidden"}" id="qr-wrap">
+          <img alt="QR code to continue this quiz on another device" width="180" height="180" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(resumeUrl(state.studyId, state.mastered))}" />
+          <p>Scan with your phone camera.</p>
+        </div>
       </div>
       <p class="meta">${remaining} remaining in pool · ${masteredN}/${state.bank.length} mastered · ${state.set.length} this session</p>
       ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
@@ -199,7 +286,7 @@ function bind(state) {
       ans.correct = ans.selected === q.correct;
       if (ans.correct && !state.mastered.includes(q.id)) {
         state.mastered.push(q.id);
-        saveMastery(state.mastered);
+        persist(state);
       }
       render(state);
       const next = app.querySelector(`[data-index="${index}"]`);
@@ -230,6 +317,42 @@ function bind(state) {
       }
     });
   });
+
+  document.getElementById("copy-link").addEventListener("click", async () => {
+    const link = resumeUrl(state.studyId, state.mastered);
+    try {
+      await navigator.clipboard.writeText(link);
+      state.notice = "Continue link copied. Open it on your phone to keep this progress.";
+    } catch {
+      state.notice = `Copy this link: ${link}`;
+    }
+    render(state);
+  });
+
+  document.getElementById("toggle-qr").addEventListener("click", () => {
+    state.showQr = !state.showQr;
+    render(state);
+  });
+
+  document.getElementById("study-form").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const incoming = parseIncoming(document.getElementById("study-input").value);
+    const studyId = incoming.studyId || state.studyId;
+    if (incoming.mastered.length) {
+      state.mastered = unionIds(state.mastered, incoming.mastered);
+    }
+    state.studyId = studyId;
+    persist(state);
+    startSession(
+      state.bank,
+      state.mastered,
+      state.set.map((q) => q.id),
+      studyId,
+      incoming.mastered.length
+        ? "Progress loaded. Correct answers from that link are in your pool."
+        : "Study ID saved on this device. Paste the full continue link to restore answers from another device."
+    );
+  });
 }
 
 function revealHtml(q, index, ans) {
@@ -253,19 +376,23 @@ function revealHtml(q, index, ans) {
   `;
 }
 
-function startSession(bank, mastered, excludeIds = []) {
+function startSession(bank, mastered, excludeIds = [], studyId = lastState?.studyId, extraNotice = "") {
   const { set, reset } = pickSet(bank, mastered, excludeIds);
   const answers = set.map(() => ({ selected: null, checked: false, correct: false }));
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  render({
+  const state = {
     bank,
     set,
     answers,
     mastered,
+    studyId: studyId || makeStudyId(),
+    showQr: Boolean(lastState?.showQr),
     notice: reset
       ? "Every question had been answered correctly. The pool is reset and a new random 20 is ready."
-      : "",
-  });
+      : extraNotice,
+  };
+  persist(state);
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  render(state);
 }
 
 async function boot() {
@@ -281,10 +408,13 @@ async function boot() {
     if (!q.pdfPage) q.pdfPage = Number(q.page) + 1;
     if (!q.sourceQuote) q.sourceQuote = "";
   }
-  const { mastered } = loadMastery();
   const known = new Set(bank.map((q) => q.id));
-  const filtered = mastered.filter((id) => known.has(id));
-  startSession(bank, filtered);
+  const incoming = parseIncoming(window.location.href);
+  const local = loadStudy();
+  const legacy = loadMastery();
+  const studyId = incoming.studyId || local.studyId || makeStudyId();
+  const mastered = unionIds(incoming.mastered, local.mastered, legacy.mastered).filter((id) => known.has(id));
+  startSession(bank, mastered, [], studyId);
   try {
     const blob = await loadPdfBlob();
     if (blob) {

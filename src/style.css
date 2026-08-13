@@ -31,6 +31,15 @@ body {
     var(--bg);
   color: var(--ink);
   font-family: "IBM Plex Sans", system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+label,
+.choice,
+.check,
+.cite-link {
+  touch-action: manipulation;
 }
 
 body {
@@ -81,6 +90,10 @@ body {
   opacity: 0.92;
 }
 
+.copy-phone {
+  display: none;
+}
+
 .book-actions {
   display: flex;
   flex-wrap: wrap;
@@ -110,6 +123,85 @@ body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+.study-bar {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+}
+
+.study-label {
+  margin: 0;
+  color: var(--gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.study-id {
+  margin: 4px 0 6px;
+  font-size: 1.55rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+}
+
+.study-help {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.study-actions,
+.study-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.study-form label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-bottom: 6px;
+}
+
+.study-form input {
+  flex: 1;
+  min-width: 12rem;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--ink);
+  background: #101929;
+  border: 1px solid #2a3a52;
+  border-radius: 999px;
+  padding: 12px 14px;
+}
+
+.qr-wrap {
+  display: grid;
+  justify-items: start;
+  gap: 6px;
+}
+
+.qr-wrap img {
+  background: #fff;
+  padding: 8px;
+  border-radius: 12px;
+}
+
+.qr-wrap p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.hidden {
+  display: none;
 }
 
 .masthead {
@@ -360,6 +452,7 @@ button {
   font-size: 1.05rem;
   margin: 0 0 14px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 }
 
 .choices {
@@ -478,12 +571,133 @@ button {
 
 @media (max-width: 640px) {
   #app {
-    padding: 16px 12px 64px;
+    padding: 12px 14px 64px;
   }
+}
 
-  .masthead,
-  .card,
-  .score {
-    padding: 18px 14px;
-  }
+html.phone {
+  -webkit-tap-highlight-color: rgba(212, 175, 55, 0.25);
+}
+
+html.phone .copy-pc {
+  display: none !important;
+}
+
+html.phone #toggle-qr {
+  display: none;
+}
+
+html.phone .study-help.copy-phone {
+  display: block;
+}
+
+html.phone #app {
+  max-width: none;
+  padding: 8px 10px calc(24px + env(safe-area-inset-bottom));
+}
+
+html.phone .book-bar {
+  position: static;
+  padding: 12px;
+  gap: 10px;
+  border-radius: 14px;
+  margin-bottom: 10px;
+}
+
+html.phone .book-copy {
+  min-width: 0;
+}
+
+html.phone .book-copy strong {
+  font-size: 0.98rem;
+}
+
+html.phone .book-copy span {
+  font-size: 0.82rem;
+}
+
+html.phone .masthead,
+html.phone .card,
+html.phone .score {
+  padding: 14px 12px;
+  border-radius: 14px;
+}
+
+html.phone h1 {
+  font-size: 1.28rem;
+}
+
+html.phone .lede {
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+}
+
+html.phone .kicker {
+  font-size: 0.66rem;
+}
+
+html.phone .study-id {
+  font-size: 1.28rem;
+  letter-spacing: 0.08em;
+}
+
+html.phone .study-form .regen,
+html.phone .controls .regen,
+html.phone .book-bar .regen,
+html.phone .check,
+html.phone .cite-link,
+html.phone .ghost {
+  min-height: 46px;
+  width: 100%;
+  text-align: center;
+  font-size: 1rem;
+}
+
+html.phone .study-row,
+html.phone .study-actions,
+html.phone .controls,
+html.phone .book-actions {
+  width: 100%;
+}
+
+html.phone .study-form input {
+  width: 100%;
+  min-width: 0;
+  font-size: 16px;
+}
+
+html.phone .choice {
+  min-height: 52px;
+  padding: 14px 12px;
+  font-size: 1rem;
+}
+
+html.phone .q-top {
+  flex-direction: column;
+  gap: 4px;
+}
+
+html.phone .progress-label {
+  flex-direction: column;
+  gap: 4px;
+}
+
+html.phone .pdf-overlay,
+html.phone .pdf-overlay.phone {
+  padding: 0;
+}
+
+html.phone .pdf-modal {
+  width: 100%;
+  max-height: 100vh;
+  max-height: 100dvh;
+  border-radius: 0;
+}
+
+html.phone .pdf-stage {
+  max-height: calc(100dvh - 72px);
+}
+
+html.phone .footnote {
+  font-size: 0.78rem;
 }
