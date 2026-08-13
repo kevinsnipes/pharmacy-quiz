@@ -1,15 +1,14 @@
 import { encodeMastered, decodeMastered } from "./progress.js";
 
-const API_BASE = "https://crudcrud.com/api/03d3b41df7d04ef89b31c438a8ed4975/slots";
+const API_BASE = "https://api.restful-api.dev/objects";
 
 const SLOT_IDS = {
-  1: "6a7d479c88d77103e82654a8",
-  2: "6a7d47aa88d77103e82654a9",
-  3: "6a7d47aa88d77103e82654aa",
+  1: "ff8081819ff5b110019ff98b3cfa08c1",
+  2: "ff8081819ff5b110019ff98b3fb208c2",
+  3: "ff8081819ff5b110019ff98b426d08c3",
 };
 
 export const SLOT_COUNT = 3;
-const idCache = { ...SLOT_IDS };
 
 function localKey(slot) {
   return `fpgee-slot-${slot}`;
@@ -42,14 +41,25 @@ function pack(doc) {
 
 function unpack(doc) {
   if (!doc || typeof doc !== "object") return null;
-  const mastered = Array.isArray(doc.mastered) && doc.mastered.length
-    ? doc.mastered
-    : decodeMastered(doc.masteredBits || "");
+  const mastered =
+    Array.isArray(doc.mastered) && doc.mastered.length
+      ? doc.mastered
+      : decodeMastered(doc.masteredBits || "");
   return {
     ...emptySave(doc.slot),
     ...doc,
     mastered,
   };
+}
+
+export function isValidSave(doc) {
+  if (!doc) return false;
+  return Boolean(
+    doc.updatedAt ||
+      Number(doc.studiedMs) > 0 ||
+      (Array.isArray(doc.mastered) && doc.mastered.length) ||
+      (Array.isArray(doc.setIds) && doc.setIds.length)
+  );
 }
 
 export function snapshotFromState(state) {
@@ -71,10 +81,11 @@ export function snapshotFromState(state) {
 function withoutId(doc) {
   const copy = { ...doc };
   delete copy._id;
+  delete copy.id;
   return copy;
 }
 
-function readLocal(slot) {
+export function readLocalSlot(slot) {
   try {
     const raw = localStorage.getItem(localKey(slot));
     if (!raw) return null;
@@ -84,7 +95,7 @@ function readLocal(slot) {
   }
 }
 
-function writeLocal(slot, doc) {
+export function writeLocalSlot(slot, doc) {
   try {
     localStorage.setItem(localKey(slot), JSON.stringify(withoutId(pack(doc))));
   } catch {
@@ -97,7 +108,6 @@ async function fetchJson(url, options = {}) {
     cache: "no-store",
     ...options,
     headers: {
-      Accept: "application/json, text/plain, */*",
       ...(options.body ? { "Content-Type": "application/json" } : {}),
       ...(options.headers || {}),
     },
@@ -115,72 +125,76 @@ async function fetchJson(url, options = {}) {
   }
 }
 
-async function resolveId(slot) {
-  const n = Number(slot);
-  if (idCache[n]) return idCache[n];
-  const rows = await fetchJson(API_BASE);
-  for (const row of rows || []) {
-    if (Number(row.slot) === n && row._id) idCache[n] = row._id;
-  }
-  return idCache[n] || SLOT_IDS[n];
+function unwrapCloud(row) {
+  if (!row || typeof row !== "object") return null;
+  const inner = row.data;
+  if (inner && typeof inner === "object") return unpack(inner);
+  return unpack(row);
 }
 
-export async function listSlots() {
-  try {
-    const rows = await fetchJson(API_BASE);
-    const bySlot = {};
-    for (const row of rows || []) {
-      if (row.slot >= 1 && row.slot <= SLOT_COUNT) {
-        bySlot[row.slot] = unpack(row);
-        if (row._id) idCache[row.slot] = row._id;
-      }
-    }
-    return [1, 2, 3].map((slot) => {
-      const cloud = bySlot[slot];
-      if (cloud) {
-        writeLocal(slot, cloud);
-        return cloud;
-      }
-      return readLocal(slot) || emptySave(slot);
-    });
-  } catch {
-    return [1, 2, 3].map((slot) => readLocal(slot) || emptySave(slot));
-  }
+function slotUrl(slot) {
+  return `${API_BASE}/${SLOT_IDS[Number(slot)]}`;
 }
 
-export async function loadSlot(slot) {
+export async function peekCloudSlot(slot) {
   const n = Number(slot);
+  const row = await fetchJson(slotUrl(n));
+  const save = unwrapCloud(row);
+  if (!save) return null;
+  save.slot = n;
+  return save;
+}
+
+export async function inspectSlots() {
+  return Promise.all(
+    [1, 2, 3].map(async (n) => {
+      const local = readLocalSlot(n);
+      try {
+        const cloud = await peekCloudSlot(n);
+        return { slot: n, local, cloud, cloudOk: true };
+      } catch {
+        return { slot: n, local, cloud: null, cloudOk: false };
+      }
+    })
+  );
+}
+
+export async function loadSlot(slot, source = "auto") {
+  const n = Number(slot);
+  if (source === "local") {
+    return readLocalSlot(n) || emptySave(n);
+  }
+  if (source === "cloud") {
+    const cloud = await peekCloudSlot(n);
+    if (cloud) writeLocalSlot(n, cloud);
+    return cloud || emptySave(n);
+  }
+  if (source === "new") {
+    return emptySave(n);
+  }
   try {
-    const id = await resolveId(n);
-    const cloud = unpack(await fetchJson(`${API_BASE}/${id}`));
-    if (cloud) {
-      writeLocal(n, cloud);
+    const cloud = await peekCloudSlot(n);
+    if (cloud && isValidSave(cloud)) {
+      writeLocalSlot(n, cloud);
       return cloud;
     }
   } catch {
     /* fall through */
   }
-  return readLocal(n) || emptySave(n);
+  return readLocalSlot(n) || emptySave(n);
 }
 
 export async function saveSlot(doc) {
   const n = Number(doc.slot);
   const payload = withoutId(pack({ ...emptySave(n), ...doc, slot: n, updatedAt: Date.now() }));
-  writeLocal(n, payload);
-  const id = await resolveId(n);
-  try {
-    await fetchJson(`${API_BASE}/${id}`, {
-      method: "PUT",
-      body: JSON.stringify(payload),
-    });
-  } catch (err) {
-    const created = await fetchJson(API_BASE, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-    if (created && created._id) idCache[n] = created._id;
-    else throw err;
-  }
+  writeLocalSlot(n, payload);
+  await fetchJson(slotUrl(n), {
+    method: "PUT",
+    body: JSON.stringify({
+      name: `fpgee-slot-${n}`,
+      data: payload,
+    }),
+  });
   return unpack(payload);
 }
 
@@ -189,6 +203,18 @@ export function sameSnapshot(a, b) {
     if (!d) return "";
     const copy = withoutId(pack(d));
     delete copy.updatedAt;
+    return JSON.stringify(copy);
+  };
+  return strip(a) === strip(b);
+}
+
+export function sameProgress(a, b) {
+  const strip = (d) => {
+    if (!d) return "";
+    const copy = withoutId(pack(d));
+    delete copy.updatedAt;
+    delete copy.studiedMs;
+    delete copy.notice;
     return JSON.stringify(copy);
   };
   return strip(a) === strip(b);

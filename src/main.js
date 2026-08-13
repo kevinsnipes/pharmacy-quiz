@@ -1,7 +1,19 @@
 import "./style.css";
 import { savePdfBlob, loadPdfBlob, clearPdfBlob } from "./storage.js";
 import { hasTextbook, loadTextbookFromBlob, openSourcePage, unloadTextbook } from "./pdfViewer.js";
-import { listSlots, loadSlot, saveSlot, snapshotFromState, sameSnapshot, emptySave } from "./saves.js";
+import {
+  inspectSlots,
+  loadSlot,
+  saveSlot,
+  snapshotFromState,
+  sameSnapshot,
+  sameProgress,
+  emptySave,
+  isValidSave,
+  writeLocalSlot,
+  peekCloudSlot,
+  readLocalSlot,
+} from "./saves.js";
 
 const SESSION_SIZE = 20;
 const app = document.querySelector("#app");
@@ -11,8 +23,10 @@ let lastState = null;
 let questionBank = [];
 let saveTimer = null;
 let lastSaved = null;
+let lastCloudAt = 0;
 let saveStatus = "";
 let studyClockStart = 0;
+const CLOUD_GAP_MS = 60_000;
 
 function isPhone() {
   const ua = navigator.userAgent || "";
@@ -42,9 +56,13 @@ document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     consumeStudyTime(lastState);
     studyClockStart = 0;
+    void flushSave(lastState, true);
   } else {
     studyClockStart = Date.now();
   }
+});
+window.addEventListener("pagehide", () => {
+  if (lastState?.screen === "quiz") void flushSave(lastState, true);
 });
 
 function shuffle(items) {
@@ -137,10 +155,19 @@ async function flushSave(state, force = true) {
   if (!state || state.screen !== "quiz") return;
   consumeStudyTime(state);
   const snap = snapshotFromState(state);
-  if (!force && sameSnapshot(snap, lastSaved)) return;
+  writeLocalSlot(state.slot, snap);
+  const progressChanged = !sameProgress(snap, lastSaved);
+  const cloudDue = Date.now() - lastCloudAt >= CLOUD_GAP_MS;
+  if (!force && sameSnapshot(snap, lastSaved) && !cloudDue) return;
+  lastSaved = snap;
+  if (!force && !progressChanged && !cloudDue) {
+    setSaveStatus(`Slot ${state.slot} saved on this device`);
+    return;
+  }
   try {
     setSaveStatus(`Saving slot ${state.slot}…`);
     lastSaved = await saveSlot(snap);
+    lastCloudAt = Date.now();
     setSaveStatus(`Slot ${state.slot} saved`);
   } catch {
     setSaveStatus("Saved on this device — cloud retrying");
@@ -308,46 +335,146 @@ function render(state) {
   bindQuiz(state);
 }
 
+function masteredCount(save) {
+  return Array.isArray(save?.mastered) ? save.mastered.length : 0;
+}
+
+function saveStatsHtml(save) {
+  if (!isValidSave(save)) {
+    return "Empty";
+  }
+  return `Time spent studying: ${formatStudyTime(save.studiedMs)}<br />Last saved: ${formatLastSaved(save.updatedAt)}<br />Mastered: ${masteredCount(save)}/1000`;
+}
+
+function slotPreview(info) {
+  const local = isValidSave(info?.local) ? `${formatStudyTime(info.local.studiedMs)} · ${formatLastSaved(info.local.updatedAt)}` : "Empty";
+  const cloud = !info?.cloudOk
+    ? "Unavailable"
+    : isValidSave(info?.cloud)
+      ? `${formatStudyTime(info.cloud.studiedMs)} · ${formatLastSaved(info.cloud.updatedAt)}`
+      : "Empty";
+  return `This device: ${local}<br />Cloud: ${cloud}`;
+}
+
 function renderGate(state) {
   const slots = state.slots || [];
   const bg = `${import.meta.env.BASE_URL}login-bg.png`;
+  const pick = Number(state.pickSlot) || 0;
+  const picked = pick ? slots.find((s) => Number(s.slot) === pick) : null;
+  const localOk = isValidSave(picked?.local);
+  const cloudOk = Boolean(picked?.cloudOk) && isValidSave(picked?.cloud);
+  const choices = [];
+  if (pick && localOk) {
+    choices.push(`
+      <div class="save-block">
+        <button class="save-slot" type="button" data-source="local">This device</button>
+        <p class="save-tip">${saveStatsHtml(picked.local)}</p>
+      </div>`);
+  }
+  if (pick && cloudOk) {
+    choices.push(`
+      <div class="save-block">
+        <button class="save-slot" type="button" data-source="cloud">Cloud</button>
+        <p class="save-tip">${saveStatsHtml(picked.cloud)}</p>
+      </div>`);
+  }
+  if (pick && !localOk && !cloudOk) {
+    choices.push(`
+      <div class="save-block">
+        <button class="save-slot" type="button" data-source="new">Start new game</button>
+        <p class="save-tip">No save in this slot yet.</p>
+      </div>`);
+  }
+
   app.innerHTML = `
     <div class="login-wrap" style="background-image:url('${bg}')">
       <div class="login-veil"></div>
       <div class="login-panel">
         <p class="kicker">FPGEE review</p>
-        <h1>Load Game</h1>
+        <h1>${pick ? `Save Slot ${pick}` : "Load Game"}</h1>
+        ${
+          pick
+            ? `<p class="lede login-copy">Choose which save to use.</p>`
+            : ""
+        }
         ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
+        ${
+          pick && picked && !picked.cloudOk
+            ? `<p class="save-tip cloud-warn">Cloud is unreachable right now${localOk ? ", so only the save on this device is listed" : ""}.</p>`
+            : ""
+        }
         <div class="save-list">
-          ${[1, 2, 3]
-            .map((n) => {
-              const info = slots.find((s) => Number(s.slot) === n) || emptySave(n);
-              return `
-                <div class="save-block">
-                  <button class="save-slot" type="button" data-slot="${n}">Save Slot ${n}</button>
-                  <p class="save-tip">
-                    Time spent studying: ${formatStudyTime(info.studiedMs)}<br />
-                    Last saved: ${formatLastSaved(info.updatedAt)}
-                  </p>
-                </div>`;
-            })
-            .join("")}
+          ${
+            pick
+              ? `${choices.join("")}
+                <button class="ghost" type="button" id="back-slots">Back</button>`
+              : [1, 2, 3]
+                  .map((n) => {
+                    const info = slots.find((s) => Number(s.slot) === n) || {
+                      slot: n,
+                      local: emptySave(n),
+                      cloud: null,
+                      cloudOk: false,
+                    };
+                    return `
+                      <div class="save-block">
+                        <button class="save-slot" type="button" data-slot="${n}">Save Slot ${n}</button>
+                        <p class="save-tip">${slotPreview(info)}</p>
+                      </div>`;
+                  })
+                  .join("")
+          }
         </div>
       </div>
     </div>
   `;
 
+  const back = document.getElementById("back-slots");
+  if (back) {
+    back.addEventListener("click", () => {
+      render({ ...state, pickSlot: 0, notice: "" });
+    });
+  }
+
   app.querySelectorAll("[data-slot]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const slot = Number(btn.dataset.slot);
       btn.disabled = true;
-      app.querySelector(".login-panel h1").textContent = `Loading slot ${slot}…`;
+      const title = app.querySelector(".login-panel h1");
+      if (title) title.textContent = `Checking slot ${slot}…`;
       try {
-        const save = await loadSlot(slot);
-        restoreFromSave(slot, save, `Loaded save slot ${slot}.`);
+        const cloud = await peekCloudSlot(slot);
+        const nextSlots = (state.slots || []).map((row) =>
+          Number(row.slot) === slot ? { ...row, cloud, cloudOk: true } : row
+        );
+        render({ ...state, slots: nextSlots, pickSlot: slot, notice: "" });
+      } catch {
+        const nextSlots = (state.slots || []).map((row) =>
+          Number(row.slot) === slot ? { ...row, cloud: null, cloudOk: false } : row
+        );
+        render({ ...state, slots: nextSlots, pickSlot: slot, notice: "" });
+      }
+    });
+  });
+
+  app.querySelectorAll("[data-source]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const source = btn.dataset.source;
+      btn.disabled = true;
+      const title = app.querySelector(".login-panel h1");
+      if (title) title.textContent = `Loading slot ${pick}…`;
+      try {
+        const save = await loadSlot(pick, source);
+        const label =
+          source === "cloud" ? "cloud save" : source === "local" ? "save on this device" : "new game";
+        restoreFromSave(pick, save, `Loaded slot ${pick} from ${label}.`);
         void flushSave(lastState, true);
       } catch {
-        restoreFromSave(slot, emptySave(slot), `Started save slot ${slot} (cloud unreachable; will keep retrying).`);
+        restoreFromSave(
+          pick,
+          source === "local" ? picked?.local || emptySave(pick) : emptySave(pick),
+          `Started save slot ${pick} from this device.`
+        );
       }
     });
   });
@@ -470,13 +597,18 @@ function revealHtml(q, index, ans) {
 
 async function showGate(notice = "") {
   stopAutosave();
-  let slots = [1, 2, 3].map((n) => emptySave(n));
+  let slots = [1, 2, 3].map((n) => ({
+    slot: n,
+    local: readLocalSlot(n),
+    cloud: null,
+    cloudOk: false,
+  }));
   try {
-    slots = await listSlots();
+    slots = await inspectSlots();
   } catch {
-    /* empty summaries */
+    /* keep local-only summaries */
   }
-  render({ screen: "gate", slots, notice });
+  render({ screen: "gate", slots, pickSlot: 0, notice });
 }
 
 async function boot() {

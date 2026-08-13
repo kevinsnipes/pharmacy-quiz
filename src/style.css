@@ -141,6 +141,21 @@ html.login #app {
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
 }
 
+.login-copy {
+  margin: 0 0 16px;
+  color: var(--muted);
+  max-width: none;
+}
+
+.cloud-warn {
+  margin: 0 0 14px;
+}
+
+.login-panel .ghost {
+  width: 100%;
+  margin-top: 4px;
+}
+
 .book-bar {
   position: sticky;
   top: 0;
@@ -842,7 +857,8 @@ html.phone .login-panel {
   padding: 22px 16px 20px;
 }
 
-html.phone .save-slot {
+html.phone .save-slot,
+html.phone .login-panel .ghost {
   min-height: 52px;
   font-size: 1.1rem;
 }
