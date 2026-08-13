@@ -4,6 +4,9 @@ dist/
 *.pdf
 _extract.json
 _extract*.json
+_packs/
+_book/
+
 .env
 .vite/
 .idea/

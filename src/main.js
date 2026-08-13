@@ -1,4 +1,6 @@
 import "./style.css";
+import { loadMastery, saveMastery, savePdfBlob, loadPdfBlob, clearPdfBlob } from "./storage.js";
+import { hasTextbook, loadTextbookFromBlob, openSourcePage, unloadTextbook } from "./pdfViewer.js";
 
 const SESSION_SIZE = 20;
 const app = document.querySelector("#app");
@@ -12,48 +14,82 @@ function shuffle(items) {
   return copy;
 }
 
-function pickSet(bank) {
-  return shuffle(bank).slice(0, SESSION_SIZE);
+function remainingPool(bank, mastered, excludeIds = []) {
+  const done = new Set(mastered);
+  const skip = new Set(excludeIds);
+  const open = bank.filter((q) => !done.has(q.id));
+  if (!open.length) return [];
+  const fresh = open.filter((q) => !skip.has(q.id));
+  return fresh.length ? fresh : open;
+}
+
+function pickSet(bank, mastered, excludeIds = []) {
+  let pool = remainingPool(bank, mastered, excludeIds);
+  let reset = false;
+  if (!pool.length) {
+    mastered.length = 0;
+    saveMastery(mastered);
+    pool = [...bank];
+    reset = true;
+  }
+  const size = Math.min(SESSION_SIZE, pool.length);
+  return { set: shuffle(pool).slice(0, size), reset };
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function render(state) {
   const checkedCount = state.answers.filter((a) => a.checked).length;
   const correctCount = state.answers.filter((a) => a.checked && a.correct).length;
-  const progress = Math.round((checkedCount / SESSION_SIZE) * 100);
-  const allChecked = checkedCount === SESSION_SIZE;
+  const remaining = state.bank.filter((q) => !state.mastered.includes(q.id)).length;
+  const masteredN = state.mastered.length;
+  const progress = Math.round((masteredN / state.bank.length) * 100);
+  const sessionProgress = Math.round((checkedCount / state.set.length) * 100);
+  const allChecked = checkedCount === state.set.length;
+  const poolEmpty = remaining === 0;
 
   app.innerHTML = `
     <header class="masthead">
       <p class="kicker">Professional pharmacy practice quiz</p>
       <h1>FPGEE Review: 20-Question Challenge</h1>
       <p class="lede">
-        Each visit draws 20 multiple-choice items at random from a bank of ${state.bank.length}
-        original questions synthesized from <em>The APhA Complete Review for the FPGEE</em>,
-        2nd Edition. Check any item as you go; citations point to the source page in the book.
-        The textbook itself is not hosted here.
+        A pool of <strong>${state.bank.length}</strong> unique items covers the full textbook.
+        Each session draws 20 at random from questions you have not yet answered correctly.
+        Correct items leave the pool until every question is mastered; missed items are shuffled back in.
+        The copyrighted book is not hosted online — load your own PDF once, then source links open that page and highlight the answer passage.
       </p>
       <div class="controls">
         <button class="regen" type="button" id="regen">Regenerate questions</button>
-        <span class="meta">${state.bank.length} questions in bank · ${SESSION_SIZE} per session</span>
+        <button class="ghost" type="button" id="load-pdf">${hasTextbook() ? "Textbook loaded" : "Load textbook PDF"}</button>
+        ${hasTextbook() ? `<button class="ghost" type="button" id="clear-pdf">Remove PDF</button>` : ""}
+        <input id="pdf-file" type="file" accept="application/pdf,.pdf" hidden />
       </div>
+      <p class="meta">${remaining} remaining in pool · ${masteredN}/${state.bank.length} mastered · ${state.set.length} this session</p>
+      ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
       <div class="progress-wrap">
         <div class="progress-label">
-          <span>${checkedCount}/${SESSION_SIZE} checked</span>
-          <span>${correctCount} correct so far</span>
+          <span>Pool mastery ${masteredN}/${state.bank.length}</span>
+          <span>Session ${checkedCount}/${state.set.length} checked · ${correctCount} correct</span>
         </div>
         <div class="bar"><span style="width:${progress}%"></span></div>
+        <div class="bar session"><span style="width:${sessionProgress}%"></span></div>
       </div>
     </header>
 
     ${state.set
       .map((q, i) => {
         const ans = state.answers[i];
-        const disabled = ans.checked ? "disabled" : "";
         return `
         <article class="card" data-index="${i}">
           <div class="q-top">
-            <span class="q-num">Question ${i + 1} of ${SESSION_SIZE}</span>
-            <span class="chapter">${q.chapter || ""}</span>
+            <span class="q-num">Question ${i + 1} of ${state.set.length}</span>
+            <span class="chapter">${escapeHtml(q.chapter || "")}</span>
           </div>
           <p class="question">${escapeHtml(q.question)}</p>
           <div class="choices">
@@ -74,7 +110,7 @@ function render(state) {
           <button class="check" type="button" data-check="${i}" ${ans.selected && !ans.checked ? "" : "disabled"}>
             Check answer
           </button>
-          ${ans.checked ? revealHtml(q, ans) : ""}
+          ${ans.checked ? revealHtml(q, i, ans) : ""}
         </article>`;
       })
       .join("")}
@@ -82,24 +118,51 @@ function render(state) {
     ${
       allChecked
         ? `<section class="score">
-            <h2>Session complete</h2>
-            <p>You answered <strong>${correctCount} of ${SESSION_SIZE}</strong> correctly (${Math.round(
-              (correctCount / SESSION_SIZE) * 100
-            )}%). Use <strong>Regenerate questions</strong> for a new random set.</p>
+            <h2>${poolEmpty ? "Pool complete" : "Session complete"}</h2>
+            <p>This round: <strong>${correctCount} of ${state.set.length}</strong> correct.
+            ${
+              poolEmpty
+                ? "You have answered every question in the pool correctly. Regenerating will reset the pool."
+                : `Mastered items stay out of the pool. Missed items were shuffled back. <strong>${remaining}</strong> remain.`
+            }</p>
           </section>`
         : ""
     }
 
     <p class="footnote">
-      Original questions and explanations for study practice. Page citations refer to
-      <em>The APhA Complete Review for the FPGEE</em>, 2nd Edition. This site does not
-      reproduce the textbook. If you own the PDF locally, look up the cited page there.
+      Original study questions with page citations to <em>The APhA Complete Review for the FPGEE</em>, 2nd Edition.
+      This site does not reproduce or host the textbook. Load your legal copy to jump to the highlighted source page.
     </p>
   `;
 
+  bind(state);
+}
+
+function bind(state) {
   document.getElementById("regen").addEventListener("click", () => {
-    startSession(state.bank);
+    startSession(state.bank, state.mastered, state.set.map((q) => q.id));
   });
+
+  const fileInput = document.getElementById("pdf-file");
+  document.getElementById("load-pdf").addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    await savePdfBlob(file);
+    await loadTextbookFromBlob(file);
+    state.notice = "Textbook loaded in this browser. Source links open the cited page and highlight the passage.";
+    render(state);
+  });
+
+  const clearBtn = document.getElementById("clear-pdf");
+  if (clearBtn) {
+    clearBtn.addEventListener("click", async () => {
+      await clearPdfBlob();
+      unloadTextbook();
+      state.notice = "Textbook removed from this browser.";
+      render(state);
+    });
+  }
 
   app.querySelectorAll(".choice").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -121,14 +184,42 @@ function render(state) {
       if (!ans.selected || ans.checked) return;
       ans.checked = true;
       ans.correct = ans.selected === q.correct;
+      if (ans.correct && !state.mastered.includes(q.id)) {
+        state.mastered.push(q.id);
+        saveMastery(state.mastered);
+      }
       render(state);
       const next = app.querySelector(`[data-index="${index}"]`);
       if (next) next.scrollIntoView({ block: "nearest" });
     });
   });
+
+  app.querySelectorAll("[data-source]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const index = Number(btn.dataset.source);
+      const q = state.set[index];
+      try {
+        if (!hasTextbook()) {
+          fileInput.click();
+          state.notice = "Select your FPGEE review PDF. After it loads, click the source link again to jump to the highlighted page.";
+          render(state);
+          return;
+        }
+        await openSourcePage({
+          pdfPage: q.pdfPage,
+          page: q.page,
+          quote: q.sourceQuote,
+          chapter: q.chapter,
+        });
+      } catch {
+        state.notice = "Could not open that page. Load the matching textbook PDF and try again.";
+        render(state);
+      }
+    });
+  });
 }
 
-function revealHtml(q, ans) {
+function revealHtml(q, index, ans) {
   const wrongIds = q.choices.map((c) => c.id).filter((id) => id !== q.correct);
   const wrongList = wrongIds
     .map((id) => {
@@ -137,10 +228,11 @@ function revealHtml(q, ans) {
     })
     .join("");
   const result = ans.correct
-    ? `Correct. The answer is ${q.correct}.`
-    : `Incorrect. You selected ${ans.selected}; the correct answer is ${q.correct}.`;
+    ? `Correct. The answer is ${q.correct}. This item is removed from the pool until every question is mastered.`
+    : `Incorrect. You selected ${ans.selected}; the correct answer is ${q.correct}. This item is shuffled back into the pool.`;
   return `
     <div class="reveal">
+      <button class="cite-link" type="button" data-source="${index}">Open page ${q.page} and highlight source</button>
       <p class="cite">See page ${q.page}${q.chapter ? ` · ${escapeHtml(q.chapter)}` : ""}</p>
       <p class="why"><strong>${result}</strong> ${escapeHtml(q.explanationCorrect)}</p>
       <ul class="why-wrong">${wrongList}</ul>
@@ -148,23 +240,23 @@ function revealHtml(q, ans) {
   `;
 }
 
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
-}
-
-function startSession(bank) {
-  const set = pickSet(bank);
+function startSession(bank, mastered, excludeIds = []) {
+  const { set, reset } = pickSet(bank, mastered, excludeIds);
   const answers = set.map(() => ({ selected: null, checked: false, correct: false }));
   window.scrollTo({ top: 0, behavior: "smooth" });
-  render({ bank, set, answers });
+  render({
+    bank,
+    set,
+    answers,
+    mastered,
+    notice: reset
+      ? "Every question had been answered correctly. The pool is reset and a new random 20 is ready."
+      : "",
+  });
 }
 
 async function boot() {
-  app.innerHTML = `<header class="masthead"><h1>Loading question bank…</h1></header>`;
+  app.innerHTML = `<header class="masthead"><h1>Loading question pool…</h1></header>`;
   const url = `${import.meta.env.BASE_URL}questions.json`;
   const res = await fetch(url);
   if (!res.ok) {
@@ -172,7 +264,20 @@ async function boot() {
     return;
   }
   const bank = await res.json();
-  startSession(bank);
+  for (const q of bank) {
+    if (!q.pdfPage) q.pdfPage = Number(q.page) + 1;
+    if (!q.sourceQuote) q.sourceQuote = "";
+  }
+  const { mastered } = loadMastery();
+  const known = new Set(bank.map((q) => q.id));
+  const filtered = mastered.filter((id) => known.has(id));
+  try {
+    const blob = await loadPdfBlob();
+    if (blob) await loadTextbookFromBlob(blob);
+  } catch {
+    /* ignore stale pdf */
+  }
+  startSession(bank, filtered);
 }
 
 boot();

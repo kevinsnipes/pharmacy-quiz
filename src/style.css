@@ -100,9 +100,34 @@ button {
   filter: brightness(1.06);
 }
 
+.ghost {
+  background: transparent;
+  color: var(--gold-soft);
+  border: 1px solid var(--gold);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 600;
+}
+
+.ghost:hover {
+  background: rgba(212, 175, 55, 0.12);
+}
+
+.notice {
+  margin: 14px 0 0;
+  color: var(--gold-soft);
+  background: rgba(212, 175, 55, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
 .regen:focus-visible,
 .check:focus-visible,
-.choice:focus-visible {
+.choice:focus-visible,
+.ghost:focus-visible,
+.cite-link:focus-visible,
+.pdf-close:focus-visible {
   outline: 2px solid var(--gold-soft);
   outline-offset: 3px;
 }
@@ -131,12 +156,107 @@ button {
   overflow: hidden;
 }
 
-.bar > span {
+.bar.session {
+  margin-top: 6px;
+  height: 5px;
+}
+
+.bar.session > span {
+  background: linear-gradient(90deg, #3b82c4, #7dd3fc);
+}
+
+.cite-link {
+  display: inline-block;
+  margin: 0 0 10px;
+  background: var(--info-bg);
+  color: var(--info);
+  border: 1px solid rgba(108, 182, 255, 0.45);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+.cite-link:hover {
+  filter: brightness(1.12);
+}
+
+.pdf-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(4, 8, 14, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.pdf-modal {
+  width: min(960px, 100%);
+  max-height: calc(100vh - 36px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #0e1622;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.pdf-toolbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  padding: 12px 14px;
+  border-bottom: 1px solid #2a3a52;
+}
+
+.pdf-sub {
   display: block;
-  height: 100%;
-  background: linear-gradient(90deg, #c9a227, #efe0a0);
-  width: 0%;
-  transition: width 0.25s ease;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 400;
+}
+
+.pdf-close {
+  background: var(--gold);
+  color: #1a1404;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+.pdf-stage {
+  position: relative;
+  overflow: auto;
+  max-height: calc(100vh - 120px);
+  padding: 12px;
+}
+
+.pdf-stage canvas {
+  display: block;
+}
+
+.pdf-page {
+  position: relative;
+  margin: 0 auto;
+}
+
+.pdf-hl {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.pdf-mark {
+  position: absolute;
+  background: rgba(255, 221, 80, 0.38);
+  outline: 2px solid rgba(255, 196, 0, 0.85);
+  border-radius: 3px;
 }
 
 .card {
