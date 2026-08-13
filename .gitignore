@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.DS_Store
+*.pdf
+_extract.json
+_extract*.json
+.env
+.vite/
+.idea/

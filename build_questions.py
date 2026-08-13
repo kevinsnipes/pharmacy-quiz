@@ -1,0 +1,1965 @@
+# Generates public/questions.json — original items grounded in extracted FPGEE review pages.
+import json
+from pathlib import Path
+
+Q = []
+
+
+def add(**kwargs):
+    Q.append(kwargs)
+
+
+# --- Anatomy & Physiology ---
+add(
+    id="q001",
+    question="A 58-year-old man requires a drug that relaxes vascular smooth muscle. Which histologic description best identifies the effector cells the drug must act on?",
+    choices=[
+        {"id": "A", "text": "Multinucleated, voluntary, striated fibers that move the skeleton"},
+        {"id": "B", "text": "Uninucleated, involuntary fibers in the walls of hollow organs and vessels"},
+        {"id": "C", "text": "Striated, involuntary fibers found only in myocardium"},
+        {"id": "D", "text": "Anucleate, biconcave cells specialized for oxygen transport"},
+    ],
+    correct="B",
+    page=31,
+    chapter="Anatomy and Physiology",
+    explanationCorrect="Vascular and visceral smooth muscle cells are uninucleated and involuntary and line hollow organs, including blood vessels—the intended target for a vasodilator.",
+    explanationWrong={
+        "A": "That description is skeletal muscle, which is voluntary and not the primary effector in vessel walls.",
+        "C": "Cardiac muscle is striated and involuntary but confined to the heart, not the vessel media.",
+        "D": "Erythrocytes are not contractile effectors.",
+    },
+)
+add(
+    id="q002",
+    question="Mechanical injury and lipid–calcium accumulation in which vessel layer most directly promotes thrombosis and ischemic stroke or coronary disease?",
+    choices=[
+        {"id": "A", "text": "Adventitia"},
+        {"id": "B", "text": "Media"},
+        {"id": "C", "text": "Intima"},
+        {"id": "D", "text": "Vasa vasorum"},
+    ],
+    correct="C",
+    page=35,
+    chapter="Anatomy and Physiology",
+    explanationCorrect="The intima is the innermost squamous endothelial layer; damage or fatty/calcium deposits there can trigger clotting and downstream cerebral or coronary ischemia.",
+    explanationWrong={
+        "A": "Adventitia is outer connective tissue and is not the primary site of atherothrombosis described here.",
+        "B": "Media is the thick muscular/elastic layer of arteries, not the endothelial surface where clots initiate in this account.",
+        "D": "Vasa vasorum nourish large-vessel walls; they are not the clotting surface.",
+    },
+)
+add(
+    id="q003",
+    question="After a dorsal and ventral root unite, the resulting spinal nerve is best classified as which of the following?",
+    choices=[
+        {"id": "A", "text": "Purely sensory, because dorsal roots carry all axons"},
+        {"id": "B", "text": "Purely motor, because ventral roots dominate the mixed trunk"},
+        {"id": "C", "text": "Mixed sensory–motor"},
+        {"id": "D", "text": "Autonomic only, without somatic fibers"},
+    ],
+    correct="C",
+    page=47,
+    chapter="Anatomy and Physiology",
+    explanationCorrect="Thirty-one pairs of spinal nerves form when dorsal and ventral roots unite, yielding a single mixed (sensory–motor) spinal nerve.",
+    explanationWrong={
+        "A": "Dorsal roots are sensory, but after union the nerve is mixed.",
+        "B": "Ventral roots are motor; the united nerve still carries both modalities.",
+        "D": "Spinal nerves include somatic sensory and motor fibers, not autonomic-only trunks.",
+    },
+)
+add(
+    id="q004",
+    question="A patient with gastric acid reflux and a suspected hiatal hernia most likely has protrusion of the gastric fundus through which anatomic opening?",
+    choices=[
+        {"id": "A", "text": "Aortic hiatus"},
+        {"id": "B", "text": "Caval opening"},
+        {"id": "C", "text": "Esophageal hiatus of the diaphragm"},
+        {"id": "D", "text": "Inguinal canal"},
+    ],
+    correct="C",
+    page=41,
+    chapter="Anatomy and Physiology",
+    explanationCorrect="The esophageal hiatus is a common site of hiatal hernias of the fundus/cardia into the posterior mediastinum, facilitating acid reflux.",
+    explanationWrong={
+        "A": "The aortic hiatus transmits aorta, not the typical hiatal hernia path of the stomach.",
+        "B": "The caval opening transmits the IVC.",
+        "D": "The inguinal canal is unrelated to gastroesophageal herniation into the mediastinum.",
+    },
+)
+
+# --- Biochemistry ---
+add(
+    id="q005",
+    question="Between meals, blood glucose is first defended by glycogenolysis. Once hepatic glycogen is depleted, which process maintains glucose, and which precursors are used?",
+    choices=[
+        {"id": "A", "text": "Glycolysis using acetyl-CoA and ketone bodies"},
+        {"id": "B", "text": "Gluconeogenesis from lactate, pyruvate, glycerol, and deaminated amino-acid ketoacids"},
+        {"id": "C", "text": "Beta-oxidation of fatty acids in the cytosol to free glucose"},
+        {"id": "D", "text": "Pentose-phosphate cycling of NADPH into glucose-6-phosphate export"},
+    ],
+    correct="B",
+    page=84,
+    chapter="Biochemistry",
+    explanationCorrect="Gluconeogenesis, mainly hepatic, synthesizes glucose from lactate, pyruvate, glycerol, and ketoacids from deaminated amino acids after glycogen stores fall.",
+    explanationWrong={
+        "A": "Glycolysis consumes glucose; acetyl-CoA and ketones are not gluconeogenic substrates in this pathway.",
+        "C": "Fatty-acid beta-oxidation occurs in mitochondria and does not yield net glucose in humans.",
+        "D": "The pentose-phosphate pathway generates NADPH and ribose, not systemic glucose maintenance after glycogen depletion.",
+    },
+)
+add(
+    id="q006",
+    question="Long-chain fatty-acid beta-oxidation requires priming with CoA-SH. Coenzyme A is derived from which vitamin, and in which compartment does the cycle run?",
+    choices=[
+        {"id": "A", "text": "Niacin; cytosol"},
+        {"id": "B", "text": "Pantothenic acid (with cysteine); mitochondrial matrix"},
+        {"id": "C", "text": "Riboflavin; nucleus"},
+        {"id": "D", "text": "Pyridoxine; endoplasmic reticulum"},
+    ],
+    correct="B",
+    page=84,
+    chapter="Biochemistry",
+    explanationCorrect="Acyl-CoA synthetase primes the fatty acid with CoA (from pantothenate and cysteine); beta-oxidation then removes two-carbon units in the mitochondrial matrix.",
+    explanationWrong={
+        "A": "Niacin yields NAD/NADP, not CoA; beta-oxidation is mitochondrial, not cytosolic.",
+        "C": "Riboflavin yields flavin cofactors; the nucleus is not the beta-oxidation site.",
+        "D": "Pyridoxine is not the CoA precursor, and ER is not the matrix cycle location.",
+    },
+)
+add(
+    id="q007",
+    question="Niacin is converted into NAD and NADP. Why do NAD/NADH and NADP/NADPH ratios matter clinically at the biochemical level?",
+    choices=[
+        {"id": "A", "text": "They are the sole determinants of glomerular filtration rate"},
+        {"id": "B", "text": "They mediate cellular energy production and report oxidative–reductive capacity as coenzymes"},
+        {"id": "C", "text": "They covalently cross-link collagen independently of vitamin C"},
+        {"id": "D", "text": "They replace ATP as the phosphoryl donor in all kinases"},
+    ],
+    correct="B",
+    page=77,
+    chapter="Biochemistry",
+    explanationCorrect="Many coenzymes are vitamins or vitamin-derived; NAD/NADP couples are critical mediators of energy metabolism and redox state because of their coenzyme roles.",
+    explanationWrong={
+        "A": "GFR is a renal hemodynamic parameter, not set by pyridine nucleotide ratios.",
+        "C": "Collagen cross-linking is not the function described for NAD/NADP here.",
+        "D": "ATP remains the main phosphoryl currency; NAD/NADP are redox coenzymes.",
+    },
+)
+add(
+    id="q008",
+    question="Lactose in milk is best described chemically as which of the following?",
+    choices=[
+        {"id": "A", "text": "A 1,2-linked glucose–fructose disaccharide"},
+        {"id": "B", "text": "A soluble 1,4-linked galactose–glucose disaccharide"},
+        {"id": "C", "text": "A branched 1,4/1,6 glucose polymer (amylopectin)"},
+        {"id": "D", "text": "A linear 1,4 glucose polymer (amylose)"},
+    ],
+    correct="B",
+    page=69,
+    chapter="Biochemistry",
+    explanationCorrect="Lactose is the milk-sugar disaccharide of galactose linked 1,4 to glucose.",
+    explanationWrong={
+        "A": "That structure is sucrose (Glc-Fru, 1,2-linked).",
+        "C": "Amylopectin is plant starch with 1,4 and 1,6 glucose linkages.",
+        "D": "Amylose is a linear 1,4 glucose polymer.",
+    },
+)
+add(
+    id="q009",
+    question="Which carbohydrate is the highly soluble monosaccharide commonly used as a nutrient and IV diluent?",
+    choices=[
+        {"id": "A", "text": "Sucrose"},
+        {"id": "B", "text": "Lactose"},
+        {"id": "C", "text": "D-glucose (dextrose)"},
+        {"id": "D", "text": "Amylopectin"},
+    ],
+    correct="C",
+    page=69,
+    chapter="Biochemistry",
+    explanationCorrect="D-glucose (dextrose) is a highly soluble monosaccharide (MW 180) used as a nutrient and diluent in intravenous therapy.",
+    explanationWrong={
+        "A": "Sucrose is a disaccharide of glucose and fructose, not the standard IV monosaccharide diluent.",
+        "B": "Lactose is a milk disaccharide and is not used as an IV nutrient/diluent in this context.",
+        "D": "Amylopectin is a high-MW branched starch polymer, not an IV monosaccharide.",
+    },
+)
+
+# --- Microbiology ---
+add(
+    id="q010",
+    question="Gram-positive organisms retain crystal violet after iodine fixation and alcohol decolorization. This difference is attributed primarily to which structural feature?",
+    choices=[
+        {"id": "A", "text": "Presence of a nucleus and mitochondria"},
+        {"id": "B", "text": "Variations in cell-wall architecture"},
+        {"id": "C", "text": "Ability to form spores exclusively"},
+        {"id": "D", "text": "Possession of 80S ribosomes only"},
+    ],
+    correct="B",
+    page=97,
+    chapter="Microbiology",
+    explanationCorrect="The Gram reaction (retention vs loss of crystal violet after iodine and alcohol) is a consequence of differences in bacterial cell walls.",
+    explanationWrong={
+        "A": "Bacteria are prokaryotes without nuclei/mitochondria; that does not explain Gram staining.",
+        "C": "Sporulation is not the basis of the Gram stain dichotomy.",
+        "D": "Bacterial ribosomes are 70S; ribosome type is not the Gram-stain mechanism described.",
+    },
+)
+add(
+    id="q011",
+    question="A traveler develops malaise and low-grade fever days before pathogen-specific findings appear. Which phase of infection does this represent?",
+    choices=[
+        {"id": "A", "text": "Incubation period"},
+        {"id": "B", "text": "Prodromal period"},
+        {"id": "C", "text": "Acme period"},
+        {"id": "D", "text": "Convalescence only"},
+    ],
+    correct="B",
+    page=104,
+    chapter="Microbiology",
+    explanationCorrect="The prodromal period is when nonspecific infectious symptoms (nausea, fever, headache, myalgias, malaise) appear, before the acme of specific findings.",
+    explanationWrong={
+        "A": "Incubation is the silent interval from entry until any symptoms appear.",
+        "C": "Acme is when specific symptoms (often high fever, chills, skin-color change) occur.",
+        "D": "Convalescence is recovery, not the onset of general symptoms.",
+    },
+)
+add(
+    id="q012",
+    question="HIV primarily targets which lymphocyte population, and why does that create opportunistic-infection risk?",
+    choices=[
+        {"id": "A", "text": "CD8 cytotoxic T cells, collapsing antibody class switching only"},
+        {"id": "B", "text": "CD4 helper T cells, undermining cell-mediated immunity"},
+        {"id": "C", "text": "Plasma cells exclusively, sparing T-cell help"},
+        {"id": "D", "text": "NK cells only, leaving adaptive immunity intact"},
+    ],
+    correct="B",
+    page=111,
+    chapter="Microbiology",
+    explanationCorrect="HIV’s primary human target is the CD4 helper T lymphocyte; failure of this CMI lineage predisposes to opportunistic fungi, protozoa (e.g., P. jirovecii), mycobacteria, and viruses such as CMV.",
+    explanationWrong={
+        "A": "CD8 cells are not the primary HIV target described here.",
+        "C": "Plasma cells are antibody factories, not the principal HIV target.",
+        "D": "NK cells are not identified as the primary HIV target in this discussion.",
+    },
+)
+add(
+    id="q013",
+    question="Which organism is specifically linked to gastric ulcer disease in this microbiology review?",
+    choices=[
+        {"id": "A", "text": "Escherichia coli"},
+        {"id": "B", "text": "Staphylococcus aureus"},
+        {"id": "C", "text": "Helicobacter pylori"},
+        {"id": "D", "text": "Salmonella Typhi"},
+    ],
+    correct="C",
+    page=117,
+    chapter="Microbiology",
+    explanationCorrect="H. pylori is identified as a bacterial cause of gastric ulcers.",
+    explanationWrong={
+        "A": "E. coli is not the gastric-ulcer pathogen highlighted here.",
+        "B": "S. aureus is not the organism tied to peptic ulcer disease in this section.",
+        "D": "S. Typhi causes enteric fever, not the gastric ulcers described.",
+    },
+)
+
+# --- Immunology ---
+add(
+    id="q014",
+    question="Which surface-marker pattern correctly matches cytotoxic T lymphocytes that kill infected cells?",
+    choices=[
+        {"id": "A", "text": "CD4, MHC II presentation as the killing receptor set"},
+        {"id": "B", "text": "CD8 with TCR α/β and CD3"},
+        {"id": "C", "text": "CD19/CD20 without TCR"},
+        {"id": "D", "text": "FcεR-dominant eosinophil markers"},
+    ],
+    correct="B",
+    page=124,
+    chapter="Immunology",
+    explanationCorrect="Cytotoxic T cells that kill infected cells express CD8, TCR α/β, CD3, CD28, and MHC I.",
+    explanationWrong={
+        "A": "CD4 marks helper T cells, not the cytotoxic killing lineage in this table.",
+        "C": "CD19/CD20 mark B-lineage cells, not cytotoxic T cells.",
+        "D": "FcεR is listed with eosinophils, not cytotoxic T lymphocytes.",
+    },
+)
+add(
+    id="q015",
+    question="Mitogens activate lymphocytes by which mechanism, distinct from classic epitope-specific antigen binding?",
+    choices=[
+        {"id": "A", "text": "Binding and cross-linking antigen receptors outside the antigen-binding site, often driving extreme cytokine release"},
+        {"id": "B", "text": "Fitting perfectly into a single antibody combining site as a hapten"},
+        {"id": "C", "text": "Inhibiting MHC class I expression on all nucleated cells"},
+        {"id": "D", "text": "Cleaving C3 independently of any lymphocyte receptor"},
+    ],
+    correct="A",
+    page=131,
+    chapter="Immunology",
+    explanationCorrect="T-independent stimuli include mitogens—large, non-antigen-specific molecules that activate B and T cells by cross-linking receptors outside the antigen-binding site and typically causing very high cytokine production.",
+    explanationWrong={
+        "B": "That describes hapten/epitope fit, not mitogen polyclonal cross-linking.",
+        "C": "MHC I downregulation is a viral-evasion theme, not the mitogen definition given.",
+        "D": "Complement cleavage is not the lymphocyte-activation mechanism described for mitogens.",
+    },
+)
+add(
+    id="q016",
+    question="Relative risk of Addison disease, type 1 diabetes, or rheumatoid arthritis is increased in people who carry certain alleles of which gene family?",
+    choices=[
+        {"id": "A", "text": "MHC class II"},
+        {"id": "B", "text": "CYP3A4 only"},
+        {"id": "C", "text": "Vitamin D receptor exclusively"},
+        {"id": "D", "text": "ABCB1 (P-glycoprotein) only"},
+    ],
+    correct="A",
+    page=139,
+    chapter="Immunology",
+    explanationCorrect="Autoimmunity can be organ-specific or systemic; risk of several autoimmune diseases rises with certain MHC class II alleles, and a hereditary component is well recognized.",
+    explanationWrong={
+        "B": "CYP3A4 affects drug metabolism, not the autoimmune risk association described.",
+        "C": "VDR is not the locus highlighted for these autoimmune risks here.",
+        "D": "ABCB1 is a transporter gene, not the MHC II association discussed.",
+    },
+)
+add(
+    id="q017",
+    question="Among transplant types, which is identified as the most common clinically?",
+    choices=[
+        {"id": "A", "text": "Isograft"},
+        {"id": "B", "text": "Xenograft"},
+        {"id": "C", "text": "Autograft"},
+        {"id": "D", "text": "Allograft"},
+    ],
+    correct="D",
+    page=144,
+    chapter="Immunology",
+    explanationCorrect="The review identifies the allograft as the most common transplant type.",
+    explanationWrong={
+        "A": "Isografts (genetically identical donors) are uncommon relative to allografts.",
+        "B": "Xenografts are not the most common clinical transplants.",
+        "C": "Autografts are important but not listed as the most common transplant type here.",
+    },
+)
+
+# --- Medicinal chemistry ---
+add(
+    id="q018",
+    question="On ionization at physiologic pH, aspirin versus amphetamine is best described how?",
+    choices=[
+        {"id": "A", "text": "Aspirin accepts a proton (conjugate acid); amphetamine donates a proton (conjugate base)"},
+        {"id": "B", "text": "Aspirin donates a proton to yield a conjugate base; amphetamine accepts a proton to yield a conjugate acid"},
+        {"id": "C", "text": "Both are permanently cationic quaternary ammonium salts"},
+        {"id": "D", "text": "Neither has an ionizable group at physiologic pH"},
+    ],
+    correct="B",
+    page=151,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="An acidic drug such as aspirin donates a proton on ionization (conjugate base); a basic drug such as amphetamine accepts a proton (conjugate acid).",
+    explanationWrong={
+        "A": "The donor/acceptor roles are reversed in that statement.",
+        "C": "Neither aspirin nor amphetamine is a permanent quaternary cation in this discussion.",
+        "D": "Both have ionizable groups central to their acid–base behavior.",
+    },
+)
+add(
+    id="q019",
+    question="A pharmacophore is best defined as which of the following?",
+    choices=[
+        {"id": "A", "text": "Any excipient required for tablet hardness"},
+        {"id": "B", "text": "The minimal set of structural features, in a defined 3D arrangement, recognized at a receptor and required for biological activity"},
+        {"id": "C", "text": "The entire marketed salt form including inactive counterions"},
+        {"id": "D", "text": "A metabolite that has lost all receptor affinity"},
+    ],
+    correct="B",
+    page=159,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="A pharmacophore is the set of structural features (ionizable groups, H-bond donors/acceptors, lipophilic and aromatic elements in a specific orientation) that a receptor recognizes and that is responsible for activity—the minimal feature set needed for the effect.",
+    explanationWrong={
+        "A": "Excipients are formulation aids, not receptor recognition motifs.",
+        "C": "Counterions of a salt are not the pharmacophore.",
+        "D": "Inactive metabolites by definition lack the activity-conferring feature set.",
+    },
+)
+add(
+    id="q020",
+    question="Fluoroquinolones, originating from nalidixic acid (a chloroquine-production byproduct), exert antibacterial action primarily by interfering with which bacterial process?",
+    choices=[
+        {"id": "A", "text": "Peptidoglycan transpeptidation by PBPs"},
+        {"id": "B", "text": "Topoisomerase control of DNA supercoiling during transcription and translation"},
+        {"id": "C", "text": "30S-subunit tRNA decoding exclusively"},
+        {"id": "D", "text": "Mycolic-acid synthesis in the outer membrane"},
+    ],
+    correct="B",
+    page=167,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="Fluoroquinolones interfere with bacterial topoisomerases that maintain correct DNA supercoiling during transcription and translation.",
+    explanationWrong={
+        "A": "That is the β-lactam mechanism, not fluoroquinolones.",
+        "C": "30S decoding is the aminoglycoside/tetracycline domain, not this class’s described target.",
+        "D": "Mycolic-acid synthesis is an antimycobacterial theme, not the FQ SAR story here.",
+    },
+)
+add(
+    id="q021",
+    question="A bottle of aspirin smells of vinegar. Which degradation pathway and products explain this finding, and why are penicillins often supplied as dry powders?",
+    choices=[
+        {"id": "A", "text": "Oxidation to melanin-like polymers; penicillins are photosensitive only"},
+        {"id": "B", "text": "Hydrolysis to salicylic acid and acetic acid; β-lactam rings are also hydrolysis-prone"},
+        {"id": "C", "text": "Photodealkylation to methane; cephalosporins are immune to water"},
+        {"id": "D", "text": "Maillard browning with lactose; esters never hydrolyze"},
+    ],
+    correct="B",
+    page=175,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="Aspirin hydrolysis yields salicylic and acetic acids (vinegar odor). Penicillin/cephalosporin lactam rings are likewise hydrolysis-prone, so they are supplied as dry powder for reconstitution.",
+    explanationWrong={
+        "A": "Oxidation with pink-to-black polymers is the epinephrine example, not aspirin’s vinegar odor.",
+        "C": "That pathway is not the aspirin/penicillin storage chemistry described.",
+        "D": "Esters (and amides) are explicitly hydrolysis-susceptible; Maillard chemistry is not the vinegar explanation.",
+    },
+)
+add(
+    id="q022",
+    question="Parenteral epinephrine that has turned pink or contains black crystals should be discarded because of which chemical process?",
+    choices=[
+        {"id": "A", "text": "Ester hydrolysis to acetic acid"},
+        {"id": "B", "text": "Oxidation to a colored species that can polymerize to black compounds"},
+        {"id": "C", "text": "Racemization that always increases potency"},
+        {"id": "D", "text": "Chelation of calcium in the bag"},
+    ],
+    correct="B",
+    page=175,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="Epinephrine oxidizes to a colored compound that can polymerize to black material; pink solutions or black crystals must be discarded.",
+    explanationWrong={
+        "A": "Ester hydrolysis to acetic acid is the aspirin example.",
+        "C": "Color change here flags oxidative degradation, not a potency-increasing racemization instruction.",
+        "D": "Calcium chelation is not the epinephrine discoloration mechanism given.",
+    },
+)
+add(
+    id="q023",
+    question="Which process is a phase II biotransformation, as opposed to oxidative or dealkylative phase I chemistry?",
+    choices=[
+        {"id": "A", "text": "Acetylation"},
+        {"id": "B", "text": "Oxidation"},
+        {"id": "C", "text": "Demethylation"},
+        {"id": "D", "text": "Deamination"},
+    ],
+    correct="A",
+    page=181,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="Acetylation is classified as a phase II reaction; oxidation, demethylation, and deamination are phase I-type processes in this item set.",
+    explanationWrong={
+        "B": "Oxidation is a classic phase I reaction.",
+        "C": "Demethylation is phase I (often CYP-mediated).",
+        "D": "Deamination is not phase II conjugation.",
+    },
+)
+add(
+    id="q024",
+    question="Acetaminophen overdose is treated with which antidote strategy among the options below?",
+    choices=[
+        {"id": "A", "text": "Forced alkaline diuresis"},
+        {"id": "B", "text": "Forced acid diuresis"},
+        {"id": "C", "text": "Osmotic diuretic as monotherapy"},
+        {"id": "D", "text": "N-acetylcysteine"},
+    ],
+    correct="D",
+    page=181,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="N-acetylcysteine is the specific treatment identified for acetaminophen overdose in this medicinal-chemistry review.",
+    explanationWrong={
+        "A": "Alkaline diuresis is not the APAP antidote listed here.",
+        "B": "Acid diuresis is not appropriate APAP care in this item.",
+        "C": "Osmotic diuresis is not the antidote strategy given.",
+    },
+)
+add(
+    id="q025",
+    question="Which drug is highlighted as a potent inhibitor of several CYP isoforms and therefore requires caution in combination therapy?",
+    choices=[
+        {"id": "A", "text": "Aspirin"},
+        {"id": "B", "text": "Cimetidine"},
+        {"id": "C", "text": "Gabapentin"},
+        {"id": "D", "text": "Levetiracetam"},
+    ],
+    correct="B",
+    page=181,
+    chapter="Medicinal Chemistry",
+    explanationCorrect="Cimetidine is identified as a potent multi-CYP inhibitor that must be used cautiously in combination regimens.",
+    explanationWrong={
+        "A": "Aspirin is not the multi-CYP inhibitor flagged here.",
+        "C": "Gabapentin has minimal CYP interaction liability in this comparison.",
+        "D": "Levetiracetam is not the CYP-inhibitor example given.",
+    },
+)
+
+# --- Pharmacology ---
+add(
+    id="q026",
+    question="Atorvastatin lowers cholesterol synthesis by acting as a false substrate that inhibits which enzyme?",
+    choices=[
+        {"id": "A", "text": "Na+/K+-ATPase"},
+        {"id": "B", "text": "HMG-CoA reductase"},
+        {"id": "C", "text": "ACE"},
+        {"id": "D", "text": "COX-1 only"},
+    ],
+    correct="B",
+    page=189,
+    chapter="Pharmacology",
+    explanationCorrect="Atorvastatin inhibits HMG-CoA reductase in the endogenous cholesterol-synthesis pathway by serving as a false substrate.",
+    explanationWrong={
+        "A": "Na+/K+-ATPase inhibition is the cardiac-glycoside (digoxin) example.",
+        "C": "ACE is not the statin target.",
+        "D": "COX-1 is an NSAID target, not HMG-CoA reductase.",
+    },
+)
+add(
+    id="q027",
+    question="Digoxin’s principal molecular action on ion transport is which of the following?",
+    choices=[
+        {"id": "A", "text": "Stimulation of SGLT2 cotransport in proximal tubule"},
+        {"id": "B", "text": "Inhibition of Na+/K+-ATPase"},
+        {"id": "C", "text": "Opening of ATP-sensitive potassium channels in beta cells"},
+        {"id": "D", "text": "Blockade of L-type calcium channels in vascular smooth muscle only"},
+    ],
+    correct="B",
+    page=189,
+    chapter="Pharmacology",
+    explanationCorrect="Cardiac glycosides such as digoxin inhibit the Na+/K+-ATPase transporter.",
+    explanationWrong={
+        "A": "SGLT2 is not the digoxin target described.",
+        "C": "K-ATP opening is a sulfonylurea-related theme, not digoxin.",
+        "D": "Dihydropyridine CCBs, not digoxin, are the vascular L-type blockers in usual teaching.",
+    },
+)
+add(
+    id="q028",
+    question="Compared with an endogenous agonist (intrinsic activity = 1), a ligand with IA = 0 and a ligand with 0 < IA < 1 are classified as what?",
+    choices=[
+        {"id": "A", "text": "Inverse agonist and full agonist, respectively"},
+        {"id": "B", "text": "Antagonist and partial agonist, respectively"},
+        {"id": "C", "text": "Partial agonist and inverse agonist, respectively"},
+        {"id": "D", "text": "Both full agonists because occupancy is maximal"},
+    ],
+    correct="B",
+    page=197,
+    chapter="Pharmacology",
+    explanationCorrect="IA is maximal effect relative to the endogenous ligand: full agonist IA = 1, antagonist IA = 0, partial agonist 0 < IA < 1, inverse agonist IA = −1.",
+    explanationWrong={
+        "A": "IA = 0 is antagonist, not inverse agonist (IA = −1).",
+        "C": "Those labels are swapped relative to the IA definitions.",
+        "D": "Maximal binding does not make a partial agonist or antagonist a full agonist.",
+    },
+)
+add(
+    id="q029",
+    question="Competitive antagonism at a shared orthosteric site can be overcome by increasing agonist concentration. Noncompetitive antagonism typically cannot, because the antagonist does which of the following?",
+    choices=[
+        {"id": "A", "text": "Binds an allosteric site that lowers agonist affinity or transduction efficiency"},
+        {"id": "B", "text": "Increases the number of spare receptors without binding anything"},
+        {"id": "C", "text": "Converts the antagonist into a full agonist at high dose"},
+        {"id": "D", "text": "Induces only pharmacokinetic clearance changes"},
+    ],
+    correct="A",
+    page=204,
+    chapter="Pharmacology",
+    explanationCorrect="Noncompetitive PD interaction occurs at an allosteric site that reduces agonist affinity or signal-transduction efficiency, so raising agonist concentration does not fully restore response as it can in competitive antagonism.",
+    explanationWrong={
+        "B": "Spare receptors would tend to preserve efficacy, not explain unsurmountable antagonism.",
+        "C": "Antagonists do not become full agonists merely by dose in this framework.",
+        "D": "The passage is about pharmacodynamic receptor-level interaction, not clearance.",
+    },
+)
+add(
+    id="q030",
+    question="An ACE inhibitor has a 3-hour elimination half-life yet a wide therapeutic range and once-daily labeling. Which statement best explains why daily dosing can still work?",
+    choices=[
+        {"id": "A", "text": "Efficacy is completely dose- and concentration-independent"},
+        {"id": "B", "text": "After five half-lives the drug is gone, so daily dosing is an FDA error"},
+        {"id": "C", "text": "Elimination half-life is irrelevant to all regimens"},
+        {"id": "D", "text": "A wide therapeutic index allows a daily dose large enough that concentrations remain effective across the dosing interval despite a short half-life"},
+    ],
+    correct="D",
+    page=210,
+    chapter="Pharmacology",
+    explanationCorrect="The review’s teaching point is that a wide therapeutic range can permit a once-daily dose high enough to maintain effect despite a short t½—not that kinetics are irrelevant or that the label is a mistake.",
+    explanationWrong={
+        "A": "ACE-inhibitor effect is not independent of dose/concentration.",
+        "B": "Five-half-life washout does not by itself prove a labeled regimen is wrong.",
+        "C": "Half-life is highly relevant to regimen design; it is not dismissed wholesale.",
+    },
+)
+
+# --- Pharmacognosy ---
+add(
+    id="q031",
+    question="Paclitaxel (Taxol) was originally obtained from which source constraint, prompting a synthetic commercial version?",
+    choices=[
+        {"id": "A", "text": "Pacific yew trees, which are limited in number"},
+        {"id": "B", "text": "Opium poppy latex exclusively"},
+        {"id": "C", "text": "Recombinant E. coli inclusion bodies"},
+        {"id": "D", "text": "Marine cone-snail venom only"},
+    ],
+    correct="A",
+    page=217,
+    chapter="Pharmacognosy and Dietary Supplements",
+    explanationCorrect="Paclitaxel was first harvested from the Pacific yew; limited tree supply led to a synthetic marketed version.",
+    explanationWrong={
+        "B": "Opium alkaloids are a different natural-product story.",
+        "C": "The text describes plant harvest then synthesis, not a bacterial recombinant origin.",
+        "D": "Cone-snail peptides are not the paclitaxel origin given.",
+    },
+)
+add(
+    id="q032",
+    question="Under U.S. dietary-supplement rules as presented here, which statement is accurate?",
+    choices=[
+        {"id": "A", "text": "Natural products must be proven bioavailable and efficacious before sale"},
+        {"id": "B", "text": "Manufacturers are responsible for safety; USP, ConsumerLab, or NSF marks can help consumers identify quality-tested products"},
+        {"id": "C", "text": "FDA pre-approves every herbal dose like a new drug NDA"},
+        {"id": "D", "text": "Adverse-event monitoring programs do not exist for these products"},
+    ],
+    correct="B",
+    page=233,
+    chapter="Pharmacognosy and Dietary Supplements",
+    explanationCorrect="Natural products need not be evaluated for purity, bioavailability, or efficacy before marketing; manufacturers are responsible for safety. USP, CL, or NSF designations help assure quality; an adverse-effect monitoring program is intended to catch toxic products.",
+    explanationWrong={
+        "A": "The text states they do not have to be evaluated for those attributes premarket.",
+        "C": "That is new-drug approval, not the supplement framework described.",
+        "D": "A recently implemented adverse-effects monitoring program is explicitly mentioned.",
+    },
+)
+add(
+    id="q033",
+    question="Adults with a hormone-sensitive tumor should avoid which listed agent?",
+    choices=[
+        {"id": "A", "text": "DHEA"},
+        {"id": "B", "text": "Saw palmetto"},
+        {"id": "C", "text": "St. John’s wort"},
+        {"id": "D", "text": "Vitamin E"},
+    ],
+    correct="A",
+    page=239,
+    chapter="Pharmacognosy and Dietary Supplements",
+    explanationCorrect="DHEA is the agent flagged as inappropriate in hormone-sensitive tumor settings among the listed choices.",
+    explanationWrong={
+        "B": "Saw palmetto is not the hormone-tumor contraindication named here.",
+        "C": "SJW is a CYP/P-gp inducer concern, not this tumor-hormone item.",
+        "D": "Vitamin E is not the listed contraindication for hormone-sensitive tumors in this question.",
+    },
+)
+
+# --- Pharmaceutics ---
+add(
+    id="q034",
+    question="Liquids tend to form spheres because molecules at the surface experience a net inward pull. Surface free energy is the work to expand area A, written as which relationship?",
+    choices=[
+        {"id": "A", "text": "Work = γ · A, where γ is surface tension (surface free energy)"},
+        {"id": "B", "text": "Work = kT ln(A) only"},
+        {"id": "C", "text": "Work = 0 because surfaces have no energy"},
+        {"id": "D", "text": "Work = osmotic pressure × volume, independent of γ"},
+    ],
+    correct="A",
+    page=249,
+    chapter="Pharmaceutics and Biopharmaceutics",
+    explanationCorrect="Expanding the surface increases free energy; work = γ · A, with γ as surface tension/surface free energy.",
+    explanationWrong={
+        "B": "That is not the interfacial-work definition given.",
+        "C": "Surface contraction exists precisely because surface molecules have excess energy.",
+        "D": "Osmotic work is a different thermodynamic quantity.",
+    },
+)
+add(
+    id="q035",
+    question="A 150 mg/mL suspension degrades by zero-order kinetics with k = 0.75 mg/mL·h. Concentration remaining after 7 days (168 h) is which value, and which dosage form class is said to follow zero-order kinetics?",
+    choices=[
+        {"id": "A", "text": "24 mg/mL; suspensions"},
+        {"id": "B", "text": "126 mg/mL; true solutions only"},
+        {"id": "C", "text": "150 mg/mL; zero-order never applies to suspensions"},
+        {"id": "D", "text": "0.75 mg/mL; first-order tablets"},
+    ],
+    correct="A",
+    page=257,
+    chapter="Pharmaceutics and Biopharmaceutics",
+    explanationCorrect="A = A0 − kt = 150 − (0.75 × 168) = 24 mg/mL. Suspensions follow zero-order kinetics; t90 = 0.1 A0/k.",
+    explanationWrong={
+        "B": "126 mg/mL is the amount lost, not the amount remaining; solutions are not the zero-order example given.",
+        "C": "The remaining concentration is not unchanged, and suspensions are the zero-order example.",
+        "D": "0.75 is the rate constant, not the 7-day concentration.",
+    },
+)
+add(
+    id="q036",
+    question="IV bolus of a poorly water-soluble drug can cause embolism. Which additional IV risk is emphasized, and how is it often mitigated?",
+    choices=[
+        {"id": "A", "text": "Delayed absorption from muscle; give IM instead"},
+        {"id": "B", "text": "Rapid high concentrations in heart, lung, liver, and kidney; use slow bolus or controlled infusion"},
+        {"id": "C", "text": "Complete avoidance of first-pass is harmful; always give orally"},
+        {"id": "D", "text": "Zero plasma exposure; increase the push rate"},
+    ],
+    correct="B",
+    page=265,
+    chapter="Pharmaceutics and Biopharmaceutics",
+    explanationCorrect="IV delivery rapidly perfuses highly vascular organs, so high plasma/tissue levels can cause adverse reactions; slow bolus or pump-controlled drip reduces that peak. Precipitation of poorly soluble drugs can also embolize.",
+    explanationWrong={
+        "A": "IM is a different route; the IV risk is not delayed muscular absorption.",
+        "C": "Avoiding first-pass is often a reason to use IV, not a mandate to switch to oral.",
+        "D": "Faster push worsens peak-related toxicity, not the reverse.",
+    },
+)
+add(
+    id="q037",
+    question="In tablet formulation, magnesium stearate is used primarily as which functional excipient?",
+    choices=[
+        {"id": "A", "text": "Diluent to provide bulk"},
+        {"id": "B", "text": "Binder to aid granulation"},
+        {"id": "C", "text": "Lubricant to prevent sticking to punches/dies and ease ejection"},
+        {"id": "D", "text": "Disintegrant that wicks water into the compact"},
+    ],
+    correct="C",
+    page=273,
+    chapter="Pharmaceutics and Biopharmaceutics",
+    explanationCorrect="Lubricants such as magnesium stearate, talc, and stearic acid prevent adherence to punches and dies and aid ejection from the die cavity.",
+    explanationWrong={
+        "A": "Diluents include lactose, MCC, dextrose, sucrose, dicalcium phosphate, and starch.",
+        "B": "Binders include starch, gelatin, PVP, alginates, and cellulose derivatives.",
+        "D": "Disintegrants are a separate functional class from lubricants in this table.",
+    },
+)
+
+# --- Clinical PK ---
+add(
+    id="q038",
+    question="Most drugs show first-order (constant clearance) elimination because Km ≫ usual C. Which anticonvulsant is the classic exception with saturable hepatic metabolism in the therapeutic range?",
+    choices=[
+        {"id": "A", "text": "Levetiracetam"},
+        {"id": "B", "text": "Gabapentin"},
+        {"id": "C", "text": "Phenytoin"},
+        {"id": "D", "text": "Ethosuximide only via renal filtration"},
+    ],
+    correct="C",
+    page=285,
+    chapter="Clinical Pharmacokinetics",
+    explanationCorrect="Phenytoin is the common example of nonlinear (Michaelis–Menten) hepatic elimination within usual therapeutic concentrations, whereas most drugs remain first-order because Km is much greater than C.",
+    explanationWrong={
+        "A": "Levetiracetam is not the saturable-hepatic example given.",
+        "B": "Gabapentin has saturable absorption, not the hepatic Vmax/Km story highlighted here.",
+        "D": "The nonlinear hepatic example specified is phenytoin.",
+    },
+)
+add(
+    id="q039",
+    question="FDA bioavailability is defined as which of the following?",
+    choices=[
+        {"id": "A", "text": "The fraction of drug bound to albumin at steady state only"},
+        {"id": "B", "text": "The rate and extent to which the active moiety is absorbed from a product and becomes available at the site of action"},
+        {"id": "C", "text": "Urinary recovery of unchanged drug irrespective of absorption"},
+        {"id": "D", "text": "The ratio of hepatic intrinsic clearance to GFR"},
+    ],
+    correct="B",
+    page=291,
+    chapter="Clinical Pharmacokinetics",
+    explanationCorrect="FDA defines bioavailability as the rate and extent to which the active ingredient or moiety is absorbed from a drug product and becomes available at the site of action.",
+    explanationWrong={
+        "A": "Protein binding is not the definition of bioavailability.",
+        "C": "Urine recovery can be a method, not the regulatory definition stated.",
+        "D": "That ratio is not bioavailability.",
+    },
+)
+add(
+    id="q040",
+    question="For a low-extraction drug (IV or oral), increasing unbound fraction (fup) while Clint and Q stay constant does what to total versus unbound Css and to effect?",
+    choices=[
+        {"id": "A", "text": "Total Css falls; unbound Css and therapeutic effect unchanged"},
+        {"id": "B", "text": "Total and unbound Css both rise; effect increases"},
+        {"id": "C", "text": "Total Css unchanged; unbound Css falls"},
+        {"id": "D", "text": "All concentrations and effect increase proportionally"},
+    ],
+    correct="A",
+    page=291,
+    chapter="Clinical Pharmacokinetics",
+    explanationCorrect="In the venous-equilibrium table for low-extraction drugs, ↑ fup with unchanged Clint and Q lowers total Css while free Css and effect stay the same.",
+    explanationWrong={
+        "B": "That pattern is not the low-extraction fup row.",
+        "C": "Total Css decreases, not stays the same, when fup rises in this model.",
+        "D": "Effect is listed as unchanged for that perturbation.",
+    },
+)
+add(
+    id="q041",
+    question="A patient’s SCr implies CrCl ≈ 33 mL/min by Cockcroft–Gault, suggesting a reduced oral dose. Why might acting on that single lab still be inappropriate?",
+    choices=[
+        {"id": "A", "text": "Cockcroft–Gault cannot be calculated from SCr"},
+        {"id": "B", "text": "SCr has a long half-life as GFR falls, so it may still be rising in AKI; stability of renal function is unknown"},
+        {"id": "C", "text": "All creatinine-based estimates overestimate GFR by a fixed 50%"},
+        {"id": "D", "text": "Oral drugs never require renal adjustment"},
+    ],
+    correct="B",
+    page=303,
+    chapter="Clinical Pharmacokinetics",
+    explanationCorrect="The teaching case stresses that a lone SCr without knowing whether renal function is stable is dangerous: SCr lags declining GFR and may continue to rise for days in AKI, so dosing from that snapshot can be wrong even if CG and MDRD agree.",
+    explanationWrong={
+        "A": "CG is explicitly calculable from SCr, age, weight, and sex.",
+        "C": "No such fixed 50% rule is given.",
+        "D": "Many oral drugs do require renal adjustment.",
+    },
+)
+
+# --- Pharmacogenetics ---
+add(
+    id="q042",
+    question="A SNP is defined in this review as which of the following?",
+    choices=[
+        {"id": "A", "text": "A chromosomal aneuploidy present in every cell"},
+        {"id": "B", "text": "A base-pair substitution occurring on average about every 300 bases"},
+        {"id": "C", "text": "A tandem repeat longer than 1 megabase"},
+        {"id": "D", "text": "An entire gene deletion only"},
+    ],
+    correct="B",
+    page=311,
+    chapter="Pharmacogenetics and Pharmacogenomics",
+    explanationCorrect="A single-nucleotide polymorphism is a base-pair substitution occurring on average every 300 bases.",
+    explanationWrong={
+        "A": "Aneuploidy is a different class of variation.",
+        "C": "That is not the SNP definition given.",
+        "D": "CNVs/deletions are not SNPs.",
+    },
+)
+add(
+    id="q043",
+    question="Pharmacogenetics aims to optimize therapy by using genetic variation in which gene classes?",
+    choices=[
+        {"id": "A", "text": "Only genes encoding structural keratin"},
+        {"id": "B", "text": "Drug-metabolizing enzymes, transporters, drug targets, and disease-associated enzymes"},
+        {"id": "C", "text": "Mitochondrial rRNA exclusively"},
+        {"id": "D", "text": "Immunoglobulin constant regions only"},
+    ],
+    correct="B",
+    page=317,
+    chapter="Pharmacogenetics and Pharmacogenomics",
+    explanationCorrect="Clinically important variants occur in genes for metabolizing enzymes, transporters, targets, and disease-associated enzymes, informing dose and drug choice to maximize efficacy and limit toxicity.",
+    explanationWrong={
+        "A": "Keratin genes are not the pharmacogene classes listed.",
+        "C": "Mitochondrial rRNA is not the scope stated here.",
+        "D": "Ig constant regions are not the PGx framework given.",
+    },
+)
+add(
+    id="q044",
+    question="HLA-B variation is clinically important for hypersensitivity risk with which drug examples?",
+    choices=[
+        {"id": "A", "text": "Albuterol and terbutaline"},
+        {"id": "B", "text": "Abacavir, carbamazepine, and phenytoin"},
+        {"id": "C", "text": "Montelukast only"},
+        {"id": "D", "text": "Estrogen oral contraceptives and Factor V Leiden exclusively"},
+    ],
+    correct="B",
+    page=324,
+    chapter="Pharmacogenetics and Pharmacogenomics",
+    explanationCorrect="HLA-B is linked to hypersensitivity with abacavir, carbamazepine, and phenytoin.",
+    explanationWrong={
+        "A": "ADRB2 variants influence bronchodilation to β2-agonists, not HLA-B HSR.",
+        "C": "ALOX5 relates to leukotriene-modifier FEV1 response.",
+        "D": "Factor V Leiden/prothrombin with estrogen OCPs raise VTE risk—a different gene–drug pair.",
+    },
+)
+add(
+    id="q045",
+    question="TPMT is important for deactivation of which drug, and UGT1A1 variation is important for neutropenia risk with which agent?",
+    choices=[
+        {"id": "A", "text": "TPMT–warfarin; UGT1A1–albuterol"},
+        {"id": "B", "text": "TPMT–azathioprine; UGT1A1–irinotecan"},
+        {"id": "C", "text": "TPMT–methotrexate; UGT1A1–omeprazole"},
+        {"id": "D", "text": "TPMT–fluoxetine; UGT1A1–erythromycin"},
+    ],
+    correct="B",
+    page=331,
+    chapter="Pharmacogenetics and Pharmacogenomics",
+    explanationCorrect="TPMT deactivates thiopurines such as azathioprine; UGT1A1 is the gene tied to irinotecan neutropenia risk.",
+    explanationWrong={
+        "A": "Warfarin is a CYP2C9/VKORC1 story, not TPMT; albuterol is ADRB2.",
+        "C": "Methotrexate is not the TPMT pair given; omeprazole is CYP2C19.",
+        "D": "Those pairings do not match the review’s examples.",
+    },
+)
+add(
+    id="q046",
+    question="Omeprazole is primarily inactivated by which CYP, and poor CYP2D6 metabolizers would be expected to have which problem with a CYP2D6-activated prodrug?",
+    choices=[
+        {"id": "A", "text": "CYP2C19; reduced formation of active metabolite and possible therapeutic failure"},
+        {"id": "B", "text": "CYP3A4 only; increased active metabolite and toxicity"},
+        {"id": "C", "text": "CYP2D6; no change in prodrug activation"},
+        {"id": "D", "text": "CYP1A2; complete conversion to an inactive glucuronide only"},
+    ],
+    correct="A",
+    page=331,
+    chapter="Pharmacogenetics and Pharmacogenomics",
+    explanationCorrect="Omeprazole is primarily inactivated by CYP2C19. CYP2D6 poor metabolizers fail to activate CYP2D6-dependent prodrugs, risking loss of efficacy.",
+    explanationWrong={
+        "B": "CYP3A4 is not the primary omeprazole inactivation path given; PMs of an activating enzyme make less, not more, active drug.",
+        "C": "Omeprazole’s primary listed enzyme is CYP2C19, not CYP2D6.",
+        "D": "CYP1A2 is not the pairing taught here.",
+    },
+)
+
+# --- Compounding ---
+add(
+    id="q047",
+    question="According to USP <797> as presented, CSPs prepared from nonsterile components are assigned which risk level?",
+    choices=[
+        {"id": "A", "text": "Low risk"},
+        {"id": "B", "text": "Medium risk"},
+        {"id": "C", "text": "High risk"},
+        {"id": "D", "text": "No risk"},
+    ],
+    correct="C",
+    page=351,
+    chapter="Extemporaneous Compounding",
+    explanationCorrect="Preparations made with nonsterile components are designated high-risk CSPs under USP <797> in this review.",
+    explanationWrong={
+        "A": "Low-risk CSPs use sterile components with limited aseptic manipulations.",
+        "B": "Medium risk still starts from sterile ingredients with more complex pooling/admixture.",
+        "D": "Nonsterile starting materials are not 'no risk.'",
+    },
+)
+add(
+    id="q048",
+    question="When incorporating a potent powder into an ointment, which mixing method is recommended to achieve an acceptable uniform dispersion?",
+    choices=[
+        {"id": "A", "text": "Dumping the entire powder into the full quantity of base at once"},
+        {"id": "B", "text": "Geometric dilution, then visually inspecting a thin film on a transparent slab"},
+        {"id": "C", "text": "Heating above 200 °C to dissolve all solids"},
+        {"id": "D", "text": "Leaving visible grit because particle size does not affect mucosal irritation"},
+    ],
+    correct="B",
+    page=345,
+    chapter="Extemporaneous Compounding",
+    explanationCorrect="Actives and excipients should be incorporated by geometric dilution; spreading a thin film on glass helps inspect uniformity. Solids should be reduced to the smallest reasonable particle size, especially if abrasive to mucosa.",
+    explanationWrong={
+        "A": "Adding all powder at once undermines uniform dispersion of potent drugs.",
+        "C": "Extreme heating is not the recommended uniformity method and can destroy drugs/bases.",
+        "D": "The text advises against abrasive particles on mucous membranes.",
+    },
+)
+add(
+    id="q049",
+    question="Which statement correctly distinguishes ointments from gels in this compounding chapter?",
+    choices=[
+        {"id": "A", "text": "Ointments are aqueous two-phase systems; gels are oleaginous petrolatum bases"},
+        {"id": "B", "text": "Gels are aqueous two-phase systems, whereas ointments are made with oleaginous bases such as petrolatum"},
+        {"id": "C", "text": "Ointments always contain water as the continuous phase"},
+        {"id": "D", "text": "Gels contain petrolatum as the defining vehicle"},
+    ],
+    correct="B",
+    page=351,
+    chapter="Extemporaneous Compounding",
+    explanationCorrect="Ointments use oleaginous bases (e.g., petrolatum); gels are described as aqueous two-phase systems—the contrast used in the chapter’s self-test.",
+    explanationWrong={
+        "A": "That swaps the two systems.",
+        "C": "Classic ointments are oleaginous, not water-continuous.",
+        "D": "Petrolatum characterizes ointments, not gels.",
+    },
+)
+add(
+    id="q050",
+    question="In suppository compounding, density factor is the ratio of which quantities?",
+    choices=[
+        {"id": "A", "text": "Weight of drug to weight of base replaced by the drug"},
+        {"id": "B", "text": "Weight of drug to weight of the finished medicated suppository only"},
+        {"id": "C", "text": "Mold volume to melting point of cocoa butter"},
+        {"id": "D", "text": "Displacement value of water to alcohol"},
+    ],
+    correct="A",
+    page=351,
+    chapter="Extemporaneous Compounding",
+    explanationCorrect="Density factor is the ratio between the weight of the drug and the weight of the base replaced by that drug—needed so the mold is neither under- nor over-filled.",
+    explanationWrong={
+        "B": "That is not the density-factor definition given.",
+        "C": "Mold volume and melting point are separate parameters.",
+        "D": "That ratio is not density factor.",
+    },
+)
+
+# --- Pharmacy practice ---
+add(
+    id="q051",
+    question="In the Pharmacists’ Patient Care Process, assessment of collected data should evaluate medications for which set of attributes?",
+    choices=[
+        {"id": "A", "text": "Color, flavor, and tablet logo only"},
+        {"id": "B", "text": "Appropriateness, effectiveness, safety, and adherence"},
+        {"id": "C", "text": "Wholesale acquisition cost exclusively"},
+        {"id": "D", "text": "Manufacturer rebate tier only"},
+    ],
+    correct="B",
+    page=357,
+    chapter="Fundamentals of Pharmacy Practice",
+    explanationCorrect="After collecting a full medication and health history, the pharmacist assesses therapy for appropriateness, effectiveness, safety, and adherence, and may address immunization and preventive needs.",
+    explanationWrong={
+        "A": "Cosmetic tablet features are not the PPCP assessment domains.",
+        "C": "Cost may matter later but is not the clinical assessment tetrad stated.",
+        "D": "Rebate tiers are payer constructs, not the clinical assessment step.",
+    },
+)
+add(
+    id="q052",
+    question="If no take-back program is available, unused tablets should be discarded how?",
+    choices=[
+        {"id": "A", "text": "Flush all medications down the toilet by default"},
+        {"id": "B", "text": "Crush tablets, mix with water, and pour on plants"},
+        {"id": "C", "text": "Mix intact tablets/capsules with an unpalatable substance (dirt, cat litter, coffee grounds), seal, and trash; scratch identifiers off the empty container"},
+        {"id": "D", "text": "Mail them unlabeled to any hospital pharmacy"},
+    ],
+    correct="C",
+    page=364,
+    chapter="Fundamentals of Pharmacy Practice",
+    explanationCorrect="When take-back/mail-back/drop-box options are unavailable, mix medications (do not crush) with an unpalatable substance, bag them, trash them, and obliterate personal information on empty packaging.",
+    explanationWrong={
+        "A": "Flushing is not the default household method taught here.",
+        "B": "Crushing is specifically discouraged.",
+        "D": "Unlabeled mailing is not the recommended disposal path.",
+    },
+)
+
+# --- Health systems ---
+add(
+    id="q053",
+    question="Which statement correctly matches a cost-sharing term?",
+    choices=[
+        {"id": "A", "text": "Deductible: amount paid before insurance pays; OOP maximum: cap after which insurance pays 100%; copayment: fixed beneficiary payment in addition to the insurer’s payment"},
+        {"id": "B", "text": "Deductible is the same as the OOP maximum in all plans"},
+        {"id": "C", "text": "Copayment is paid only after the OOP maximum is reached"},
+        {"id": "D", "text": "Public plans never use copayments or deductibles"},
+    ],
+    correct="A",
+    page=375,
+    chapter="Health Care Delivery Systems",
+    explanationCorrect="Deductibles are prepaid amounts before claims pay; OOP maxima cap annual beneficiary spend after which coverage is 100%; copayments are additional beneficiary payments to the provider/organization.",
+    explanationWrong={
+        "B": "They are distinct plan features.",
+        "C": "Copays typically apply before the OOP cap, not only after it.",
+        "D": "Public programs can still use cost-sharing.",
+    },
+)
+add(
+    id="q054",
+    question="A vertically integrated delivery system is characterized by which structure, and what is a common patient/clinician complaint?",
+    choices=[
+        {"id": "A", "text": "One organization owns many similar hospitals only (horizontal); unlimited out-of-network choice"},
+        {"id": "B", "text": "One organization delivers care across levels (primary, specialty, hospital, urgent care, pharmacy, home health); formulary/quality rules and in-network limits can feel restrictive"},
+        {"id": "C", "text": "Independent solo practices with no shared administration"},
+        {"id": "D", "text": "Insurance underwriting without any care delivery assets"},
+    ],
+    correct="B",
+    page=381,
+    chapter="Health Care Delivery Systems",
+    explanationCorrect="Vertical integration places one organization across the continuum of care, improving efficiency/quality/cost but potentially restricting physician autonomy (quality metrics, formularies) and patient choice of facilities.",
+    explanationWrong={
+        "A": "Buying similar entities is horizontal integration.",
+        "C": "That is the opposite of an integrated system.",
+        "D": "Vertical integration here is about delivering care, not merely underwriting.",
+    },
+)
+add(
+    id="q055",
+    question="Medicare Part D was created by which statute?",
+    choices=[
+        {"id": "A", "text": "Social Security Amendments of 1965"},
+        {"id": "B", "text": "Food, Drug, and Cosmetic Act of 1938"},
+        {"id": "C", "text": "Medicare Prescription Drug, Improvement, and Modernization Act of 2003"},
+        {"id": "D", "text": "OSHA Act of 1970"},
+    ],
+    correct="C",
+    page=386,
+    chapter="Health Care Delivery Systems",
+    explanationCorrect="The MMA of 2003 created Medicare Part D. The 1965 amendments created original Medicare; FDCA and OSHA are unrelated to Part D’s origin.",
+    explanationWrong={
+        "A": "1965 created Medicare hospital/medical coverage, not Part D.",
+        "B": "FDCA is drug-safety law, not the Part D benefit.",
+        "D": "OSHA governs workplace safety, not Medicare drug benefits.",
+    },
+)
+
+# --- Epidemiology ---
+add(
+    id="q056",
+    question="Age-adjusted mortality rates are used primarily for which purpose?",
+    choices=[
+        {"id": "A", "text": "To compare mortality between populations with different age structures"},
+        {"id": "B", "text": "To diagnose individual patients"},
+        {"id": "C", "text": "To replace all crude rates in billing"},
+        {"id": "D", "text": "To estimate bioavailability"},
+    ],
+    correct="A",
+    page=391,
+    chapter="Pharmacoepidemiology",
+    explanationCorrect="Age adjustment (using a standard population’s age weights) allows fair comparison of mortality rates across populations that differ in age mix.",
+    explanationWrong={
+        "B": "These are population statistics, not bedside diagnostic tests.",
+        "C": "They are epidemiologic, not billing, tools.",
+        "D": "Bioavailability is a PK parameter.",
+    },
+)
+add(
+    id="q057",
+    question="A published case series of 12 patients with a rare ADE can do which of the following, and what can it not do?",
+    choices=[
+        {"id": "A", "text": "Establish population incidence with a confidence interval; replace RCTs"},
+        {"id": "B", "text": "Describe the cases and generate hypotheses; it cannot support inferences about the general population of patients with that disease"},
+        {"id": "C", "text": "Prove causation via randomization"},
+        {"id": "D", "text": "Provide a nationally representative prevalence estimate"},
+    ],
+    correct="B",
+    page=391,
+    chapter="Pharmacoepidemiology",
+    explanationCorrect="Case reports/series are purely descriptive, may spark hypotheses, and cannot support general-population inference.",
+    explanationWrong={
+        "A": "They do not yield valid population incidence the way designed studies do.",
+        "C": "There is no randomization in a case series.",
+        "D": "They are not representative prevalence surveys.",
+    },
+)
+add(
+    id="q058",
+    question="RCTs at approval often miss rare ADEs because of which limitations (select the best cluster)?",
+    choices=[
+        {"id": "A", "text": "Small N, short duration, and strict inclusion criteria"},
+        {"id": "B", "text": "Randomization itself makes safety undetectable in principle"},
+        {"id": "C", "text": "RCTs never collect adverse events"},
+        {"id": "D", "text": "Placebos are illegal in all phase 3 trials"},
+    ],
+    correct="A",
+    page=395,
+    chapter="Pharmacoepidemiology",
+    explanationCorrect="Limited sample size, brief follow-up, and narrow eligibility leave rare or delayed harms underpowered at approval—reasons pharmacoepidemiology is needed. Randomization is a strength for causality, not the reason safety is missed.",
+    explanationWrong={
+        "B": "Randomization is not listed as a reason RCTs fail at rare-ADE detection.",
+        "C": "RCTs do collect ADEs; they are simply underpowered for rare ones.",
+        "D": "Placebos are not universally illegal in phase 3.",
+    },
+)
+
+# --- Pharmacoeconomics ---
+add(
+    id="q059",
+    question="Around 2015, U.S. health spending was described as more than $3 trillion annually, roughly what share of GDP?",
+    choices=[
+        {"id": "A", "text": "About 2%"},
+        {"id": "B", "text": "About 8%"},
+        {"id": "C", "text": "Roughly 18%"},
+        {"id": "D", "text": "More than 50%"},
+    ],
+    correct="C",
+    page=403,
+    chapter="Economic and Humanistic Outcomes",
+    explanationCorrect="The chapter cites >$3 trillion per year, ~18% of GDP, underscoring why macroeconomic context matters for health systems.",
+    explanationWrong={
+        "A": "2% far understates the cited share.",
+        "B": "8% is well below the ~18% figure given.",
+        "D": "50% exceeds the cited GDP share.",
+    },
+)
+add(
+    id="q060",
+    question="A cost-effectiveness analysis from the payer’s perspective typically includes which costs, and why does perspective matter?",
+    choices=[
+        {"id": "A", "text": "Direct costs to the payer; indirect patient time/lost wages are often excluded because they do not hit the payer"},
+        {"id": "B", "text": "Only societal productivity losses, never drug acquisition cost"},
+        {"id": "C", "text": "All possible costs automatically, regardless of who pays"},
+        {"id": "D", "text": "None of the drug costs if a generic exists"},
+    ],
+    correct="A",
+    page=411,
+    chapter="Economic and Humanistic Outcomes",
+    explanationCorrect="Perspective determines which inputs count. Payer analyses focus on direct payer costs and often omit patient time and lost wages; patient/societal perspectives include those indirect costs. Ask who pays the inputs.",
+    explanationWrong={
+        "B": "Drug costs are central in a medication CEA from a payer view.",
+        "C": "Perspective explicitly limits which costs enter.",
+        "D": "Generics still have acquisition costs relevant to payers.",
+    },
+)
+
+# --- Management ---
+add(
+    id="q061",
+    question="Compared with business planning, strategic planning is described as which of the following?",
+    choices=[
+        {"id": "A", "text": "Short-term (1–5 years) feasibility for starting/expanding/terminating a program"},
+        {"id": "B", "text": "Organization-wide, externally oriented, longer-term (5–20 years) guidance on what business the organization ought to be in"},
+        {"id": "C", "text": "Daily technician staffing worksheets only"},
+        {"id": "D", "text": "A replacement for all financial statements"},
+    ],
+    correct="B",
+    page=425,
+    chapter="Pharmacy Practice Management",
+    explanationCorrect="Strategic planning is organization-wide and long-term (5–20 years), asking what business to be in and framing later decisions. Business planning is shorter-term (1–5 years) feasibility/investment guidance.",
+    explanationWrong={
+        "A": "That is business planning in the comparison table.",
+        "C": "Operational schedules are not strategic planning as defined.",
+        "D": "Planning complements, rather than replaces, financial reporting.",
+    },
+)
+add(
+    id="q062",
+    question="The classic marketing mix ('four Ps') consists of which elements?",
+    choices=[
+        {"id": "A", "text": "Patients, prescribers, payers, politicians"},
+        {"id": "B", "text": "Product, price, promotion, place"},
+        {"id": "C", "text": "Plan, do, study, act"},
+        {"id": "D", "text": "Potency, purity, packing, pedigree"},
+    ],
+    correct="B",
+    page=431,
+    chapter="Pharmacy Practice Management",
+    explanationCorrect="The four Ps are product, price, promotion, and place.",
+    explanationWrong={
+        "A": "Those are stakeholder groups, not the marketing mix.",
+        "C": "PDSA is quality-improvement cycling.",
+        "D": "Those are drug-quality/supply-chain concepts, not the four Ps.",
+    },
+)
+
+# --- Law ---
+add(
+    id="q063",
+    question="Which pairing correctly matches federal statute to principal purpose?",
+    choices=[
+        {"id": "A", "text": "FDCA: premarket control of foods, drugs, cosmetics, and devices; CSA: scheduling and control of abusable substances, including registration and recordkeeping"},
+        {"id": "B", "text": "CSA: new drug efficacy NDAs; FDCA: only controlled-substance quotas"},
+        {"id": "C", "text": "HIPAA: DEA registration of manufacturers only"},
+        {"id": "D", "text": "FDCA: state board licensure of pharmacists"},
+    ],
+    correct="A",
+    page=439,
+    chapter="Pharmacy Law and Regulatory Affairs",
+    explanationCorrect="FDCA regulates sale/approval of foods, drugs, cosmetics, and devices. CSA controls drugs with abuse/addiction potential via schedules, registration, sales limits, and records. HIPAA (P.L. 104-191) is the privacy/portability statute mentioned alongside these.",
+    explanationWrong={
+        "B": "Roles are reversed and misstated.",
+        "C": "HIPAA is not the CSA registration scheme.",
+        "D": "Pharmacist licensure is state-based, not the FDCA’s core purpose as stated.",
+    },
+)
+add(
+    id="q064",
+    question="The primary purpose of separating legislative, executive, and judicial branches is which of the following?",
+    choices=[
+        {"id": "A", "text": "To give agencies unchecked power"},
+        {"id": "B", "text": "To establish a system of checks and balances"},
+        {"id": "C", "text": "To eliminate judicial review"},
+        {"id": "D", "text": "To place all lawmaking in the DEA"},
+    ],
+    correct="B",
+    page=461,
+    chapter="Pharmacy Law and Regulatory Affairs",
+    explanationCorrect="Three branches exist to provide checks and balances. The legislative branch also creates agencies and grants them authority; the executive typically runs them (e.g., HHS Secretary, board appointments).",
+    explanationWrong={
+        "A": "Separation of powers constrains, rather than unleashes, agencies.",
+        "C": "Courts remain a coequal branch.",
+        "D": "DEA is an executive agency, not the legislature.",
+    },
+)
+add(
+    id="q065",
+    question="Stare decisis belongs to which type of law?",
+    choices=[
+        {"id": "A", "text": "Civil codes imported wholesale from statute only"},
+        {"id": "B", "text": "Case law—abiding by decided cases in subsequent similar cases"},
+        {"id": "C", "text": "Criminal procedure exclusively"},
+        {"id": "D", "text": "Administrative rulemaking without courts"},
+    ],
+    correct="B",
+    page=461,
+    chapter="Pharmacy Law and Regulatory Affairs",
+    explanationCorrect="Stare decisis means to abide by decided cases, so prior decisions guide later ones; it is a case-law doctrine.",
+    explanationWrong={
+        "A": "Pure civil-code systems de-emphasize precedent relative to this common-law doctrine.",
+        "C": "It is not limited to criminal procedure.",
+        "D": "It is a judicial-precedent concept.",
+    },
+)
+add(
+    id="q066",
+    question="In a pharmacy negligence suit, duty and breach are judged by which standard?",
+    choices=[
+        {"id": "A", "text": "What a reasonably prudent pharmacist would have done under the same or similar circumstances, established with expert pharmacist testimony"},
+        {"id": "B", "text": "Whatever the patient subjectively wished in hindsight"},
+        {"id": "C", "text": "FDA’s criminal intent standard only"},
+        {"id": "D", "text": "Strict liability without regard to professional custom"},
+    ],
+    correct="A",
+    page=455,
+    chapter="Pharmacy Law and Regulatory Affairs",
+    explanationCorrect="The professional standard of care in the community (or similar community) is 'the reasonably prudent pharmacist.' Both sides use pharmacist experts; the trier of fact decides whether the standard was met. Injury may be physical or mental.",
+    explanationWrong={
+        "B": "Hindsight patient preference is not the legal standard stated.",
+        "C": "Negligence is not equated to FDA criminal intent here.",
+        "D": "The discussion is negligence/standard of care, not strict liability.",
+    },
+)
+
+# --- Biostats ---
+add(
+    id="q067",
+    question="A simple random sample is defined as which of the following?",
+    choices=[
+        {"id": "A", "text": "Selecting the most convenient patients at a clinic"},
+        {"id": "B", "text": "A sample drawn so that every possible sample of that size from the population has the same chance of being chosen"},
+        {"id": "C", "text": "Taking only outliers to maximize variance"},
+        {"id": "D", "text": "Matching cases to controls by investigator preference"},
+    ],
+    correct="B",
+    page=469,
+    chapter="Biostatistics",
+    explanationCorrect="Simple random sampling gives every possible sample of a given size equal probability of selection.",
+    explanationWrong={
+        "A": "Convenience sampling is not SRS.",
+        "C": "That is a biased, nonrandom scheme.",
+        "D": "Matching is a different design choice.",
+    },
+)
+add(
+    id="q068",
+    question="In a 2×2 diagnostic table, disease present/absent = 50/50, test +/− among diseased = 30/20, among nondiseased = 40/10. Sensitivity and specificity are which pair?",
+    choices=[
+        {"id": "A", "text": "Sensitivity 30/50; specificity 10/50"},
+        {"id": "B", "text": "Sensitivity 30/70; specificity 10/30"},
+        {"id": "C", "text": "Sensitivity 10/50; specificity 30/50"},
+        {"id": "D", "text": "Sensitivity 30/50; specificity 40/50"},
+    ],
+    correct="A",
+    page=483,
+    chapter="Biostatistics",
+    explanationCorrect="Sensitivity = TP/(TP+FN) = 30/50. Specificity = TN/(TN+FP) = 10/50. (PPV would be 30/70; NPV 10/30.)",
+    explanationWrong={
+        "B": "Those fractions are PPV and NPV, not sensitivity/specificity.",
+        "C": "That swaps false-negative and true-negative logic.",
+        "D": "Specificity uses true negatives among the nondiseased (10), not the 40 false positives.",
+    },
+)
+add(
+    id="q069",
+    question="In simple linear regression, the investigator typically treats X and Y how?",
+    choices=[
+        {"id": "A", "text": "X is the independent variable (often preselected); Y is the dependent response plotted on the vertical axis"},
+        {"id": "B", "text": "Y is always the cause and X the effect"},
+        {"id": "C", "text": "Neither variable may be plotted"},
+        {"id": "D", "text": "Regression estimates only medians, never a linear relationship"},
+    ],
+    correct="A",
+    page=477,
+    chapter="Biostatistics",
+    explanationCorrect="Simple linear regression estimates the linear relationship between independent X (horizontal) and dependent Y (vertical); X is usually investigator-controlled or preselected.",
+    explanationWrong={
+        "B": "Regression association is not automatically causation, and Y is the dependent variable.",
+        "C": "Scatterplots are part of the workflow described.",
+        "D": "The objective stated is estimating the linear X–Y relationship.",
+    },
+)
+
+# --- Trials / EBM ---
+add(
+    id="q070",
+    question="Crossover RCTs compare treatments within the same participant. Their major limitation and the purpose of a washout are which of the following?",
+    choices=[
+        {"id": "A", "text": "Only unstable acute conditions can be studied; washout increases carryover"},
+        {"id": "B", "text": "Only stable chronic/episodic conditions that can return to baseline are suitable; washout reduces residual/carryover effects"},
+        {"id": "C", "text": "They cannot reduce variability; washout is used to unblind staff"},
+        {"id": "D", "text": "They require unique participants per arm; washout replaces randomization"},
+    ],
+    correct="B",
+    page=492,
+    chapter="Clinical Trial Design",
+    explanationCorrect="Within-subject crossover comparison reduces variability but is limited to stable chronic or episodic diseases (e.g., glaucoma, epilepsy, migraine) that can return to baseline. A washout of no/usual treatment between periods avoids carryover.",
+    explanationWrong={
+        "A": "Unstable acute diseases are poorly suited; washout is meant to decrease, not increase, carryover.",
+        "C": "Crossovers typically reduce variability; washout is not an unblinding tool.",
+        "D": "The same participants receive more than one arm; washout does not replace randomization.",
+    },
+)
+add(
+    id="q071",
+    question="A case report as a clinical study design is best characterized as which of the following?",
+    choices=[
+        {"id": "A", "text": "Randomized and controlled"},
+        {"id": "B", "text": "Observational (typically neither randomized nor a prospective experiment)"},
+        {"id": "C", "text": "The gold standard for causation"},
+        {"id": "D", "text": "Always blinded and placebo-controlled"},
+    ],
+    correct="B",
+    page=499,
+    chapter="Clinical Trial Design",
+    explanationCorrect="Case reports are observational descriptions, not randomized, prospective, controlled experiments.",
+    explanationWrong={
+        "A": "Case reports are not RCTs.",
+        "C": "They generate hypotheses, not causal proof.",
+        "D": "Blinding and placebo are RCT features.",
+    },
+)
+add(
+    id="q072",
+    question="Evidence-based medicine frames a clinical dilemma with the PICO mnemonic. The letters stand for which sequence?",
+    choices=[
+        {"id": "A", "text": "Protocol, IRB, Consent, Outcomes"},
+        {"id": "B", "text": "Patient/problem, Intervention, Comparison, Outcome"},
+        {"id": "C", "text": "Power, Inclusion, Covariates, Odds ratio"},
+        {"id": "D", "text": "Pharmacy, Inventory, Compounding, OTC"},
+    ],
+    correct="B",
+    page=609,
+    chapter="Evidence-Based Practice",
+    explanationCorrect="PICO: Patient’s problem, Intervention, Comparison with an alternative, and desired clinical Outcome—best for specific foreground questions.",
+    explanationWrong={
+        "A": "Those are regulatory process terms, not PICO.",
+        "C": "Those are statistical design terms.",
+        "D": "Those are operations terms.",
+    },
+)
+add(
+    id="q073",
+    question="Two VTE-prevention guidelines (e.g., CHEST vs EAST) disagree slightly for trauma patients. What is the clinician’s responsibility, and which instrument appraises guideline quality?",
+    choices=[
+        {"id": "A", "text": "Follow whichever PDF is shorter; no appraisal tool exists"},
+        {"id": "B", "text": "Review each guideline and its supporting literature, then decide what to apply; AGREE II appraises guideline quality"},
+        {"id": "C", "text": "Average the two recommendations numerically without reading evidence"},
+        {"id": "D", "text": "Ignore both because disagreement proves neither is evidence-based"},
+    ],
+    correct="B",
+    page=617,
+    chapter="Evidence-Based Practice",
+    explanationCorrect="When reputable guidelines diverge, clinicians must read the recommendations and underlying evidence and choose what fits their patients. AGREE II is the structured guideline-appraisal instrument cited.",
+    explanationWrong={
+        "A": "Length is not a validity criterion.",
+        "C": "Mechanical averaging skips evidence appraisal.",
+        "D": "Disagreement is expected across groups; it does not nullify EBM methods.",
+    },
+)
+
+# --- Ethics / communication / social ---
+add(
+    id="q074",
+    question="Discernment as a professional virtue is the ability to do which of the following?",
+    choices=[
+        {"id": "A", "text": "Reach appropriate decisions without being unduly swayed by peripheral fears, preferences, or outside pressure"},
+        {"id": "B", "text": "Conceal errors to protect institutional reputation"},
+        {"id": "C", "text": "Always defer to the loudest team member"},
+        {"id": "D", "text": "Prioritize personal convenience over the patient’s stated needs"},
+    ],
+    correct="A",
+    page=511,
+    chapter="Ethics in Health Care Practice",
+    explanationCorrect="Discernment means deciding appropriately without being distracted by peripheral considerations, fears, personal preferences, or outside pressure—asking whether one is responding to the patient’s needs or one’s own.",
+    explanationWrong={
+        "B": "Trustworthiness/integrity require honesty, not concealment.",
+        "C": "That is the opposite of independent discernment.",
+        "D": "That fails compassion and fidelity to the patient.",
+    },
+)
+add(
+    id="q075",
+    question="From the principle of autonomy, a fully informed patient with decision-making capacity may do which of the following regarding life-sustaining treatment?",
+    choices=[
+        {"id": "A", "text": "Must accept all ICU interventions the team prefers"},
+        {"id": "B", "text": "Decline life-sustaining treatment; advance directives and surrogate decision-makers exist because incapacity can occur at any age"},
+        {"id": "C", "text": "Never appoint a health-care agent"},
+        {"id": "D", "text": "Only refuse treatment after a court order in every case"},
+    ],
+    correct="B",
+    page=519,
+    chapter="Ethics in Health Care Practice",
+    explanationCorrect="Autonomy supports informed, capacitated refusal of life-sustaining treatment. Advance directives/living wills and surrogates (health-care agents, DPOA-HC) are encouraged because incapacity can be sudden.",
+    explanationWrong={
+        "A": "Autonomy rejects forced treatment solely because the team prefers it.",
+        "C": "Naming a surrogate is explicitly encouraged.",
+        "D": "Capacity plus informed refusal does not always require a court order as stated here.",
+    },
+)
+add(
+    id="q076",
+    question="Which interview technique yields richer medication-history data than a yes/no question?",
+    choices=[
+        {"id": "A", "text": "Closed-ended: 'Did the doctor tell you how to take this?'"},
+        {"id": "B", "text": "Open-ended: 'How did the doctor tell you to take this medication?'—one question at a time, with time to recall"},
+        {"id": "C", "text": "Asking several unrelated questions simultaneously"},
+        {"id": "D", "text": "Never redirecting a wandering historian"},
+    ],
+    correct="B",
+    page=535,
+    chapter="Professional Communications",
+    explanationCorrect="Open-ended questions cannot be answered yes/no and elicit more information. Control flow by asking one question at a time, allowing recall time, and politely redirecting if the patient veers off topic.",
+    explanationWrong={
+        "A": "That closed question can be answered with a mere yes or no.",
+        "C": "Stacked questions impair the interview.",
+        "D": "Polite redirection is recommended when the patient goes off topic.",
+    },
+)
+add(
+    id="q077",
+    question="The first 'prime question' in counseling should cover which content?",
+    choices=[
+        {"id": "A", "text": "Storage recommendations"},
+        {"id": "B", "text": "Purpose of the medication"},
+        {"id": "C", "text": "Possible side effects"},
+        {"id": "D", "text": "Refill logistics only"},
+    ],
+    correct="B",
+    page=543,
+    chapter="Professional Communications",
+    explanationCorrect="The first prime question addresses the purpose of the medication; dosing schedule and other topics map to later prime questions in this counseling model.",
+    explanationWrong={
+        "A": "Storage is not the first prime question listed.",
+        "C": "Side effects are a later counseling element in this scheme.",
+        "D": "Refills are not the first prime question.",
+    },
+)
+add(
+    id="q078",
+    question="A pharmacist who assumes poor adherence because of a patient’s race or income is violating which teaching point, and what should replace that assumption?",
+    choices=[
+        {"id": "A", "text": "Leave the bias: believe all patients can adhere if given appropriate care; then evaluate adherence periodically"},
+        {"id": "B", "text": "Use race as a validated adherence biomarker"},
+        {"id": "C", "text": "Avoid assessing adherence because it is paternalistic"},
+        {"id": "D", "text": "Document nonadherence without offering support"},
+    ],
+    correct="A",
+    page=555,
+    chapter="Social and Behavioral Aspects",
+    explanationCorrect="Providers must resist the fallacy that some patients are destined to nonadhere based on race, income, or social history, and should instead believe adherence is possible with proper care, then evaluate it over time.",
+    explanationWrong={
+        "B": "That reproduces the bias the chapter rejects.",
+        "C": "Periodic evaluation of adherence is explicitly recommended.",
+        "D": "The goal is to optimize adherence, not merely label it.",
+    },
+)
+add(
+    id="q079",
+    question="In physician–pharmacist collaboration, which relationship domain is described as most important for establishing collaboration?",
+    choices=[
+        {"id": "A", "text": "Exchange characteristics: perceived pharmacist proactivity, physician trust, and role specification"},
+        {"id": "B", "text": "Matching the physician’s medical-school alma mater"},
+        {"id": "C", "text": "Avoiding all contact to prevent conflict"},
+        {"id": "D", "text": "Limiting the pharmacist to inventory counts"},
+    ],
+    correct="A",
+    page=563,
+    chapter="Social and Behavioral Aspects",
+    explanationCorrect="Exchange characteristics—how proactive the physician finds the pharmacist, trust, and role clarity—are the most important factors in building collaborative physician–pharmacist relationships. Pharmacists should also be proactive with nursing and other team members (e.g., medication reconciliation).",
+    explanationWrong={
+        "B": "Credentials matching is not the cited determinant.",
+        "C": "Avoidance undermines collaboration.",
+        "D": "That underuses pharmacists on the team.",
+    },
+)
+
+# --- Dispensing / safety ---
+add(
+    id="q080",
+    question="Medication reconciliation is required at which transitions, and what problem does it address?",
+    choices=[
+        {"id": "A", "text": "Only at annual wellness visits; it addresses copay collection"},
+        {"id": "B", "text": "Admission, transfer between levels of care, and discharge; poor history documentation is a major source of medication errors"},
+        {"id": "C", "text": "Only in community retail after hours"},
+        {"id": "D", "text": "Never in hospitals because EHRs auto-correct all lists"},
+    ],
+    correct="B",
+    page=581,
+    chapter="Medication Dispensing and Distribution",
+    explanationCorrect="Med rec is required at admission, transfer, and discharge. Research ties significant errors to poor medication-history documentation; profiles also improve charting, refill validation, provider communication, and allergy documentation.",
+    explanationWrong={
+        "A": "The required hospital transitions are admission/transfer/discharge.",
+        "C": "It is a care-transition safety process, not an after-hours retail-only task.",
+        "D": "EHRs do not eliminate the need for systematic reconciliation.",
+    },
+)
+add(
+    id="q081",
+    question="A culture of safety in a just culture is best described as which environment?",
+    choices=[
+        {"id": "A", "text": "Punitive identification of a single guilty individual for every error"},
+        {"id": "B", "text": "Nonpunitive sharing of safety information, while still distinguishing reckless behavior from human error and system failure"},
+        {"id": "C", "text": "Pharmacy-only ownership of all organizational safety issues"},
+        {"id": "D", "text": "Hiding possible errors to protect patient-information optics"},
+    ],
+    correct="B",
+    page=597,
+    chapter="Medication Dispensing and Distribution",
+    explanationCorrect="Safety culture promotes a nonpunitive environment where safety information is freely shared. A just culture does not merely fire everyone involved in harm, nor pretend all errors self-correct; it addresses systems while remaining accountable.",
+    explanationWrong={
+        "A": "Blame-focused culture suppresses reporting.",
+        "C": "Medication safety is organizational, not pharmacy-siloed.",
+        "D": "Concealment opposes a reporting culture.",
+    },
+)
+add(
+    id="q082",
+    question="Naloxone, vitamin K, and diphenhydramine as rescue/alert drugs correspond most closely to which problems?",
+    choices=[
+        {"id": "A", "text": "Naloxone–oversedation/opioid excess; vitamin K–warfarin over-anticoagulation; diphenhydramine–hypersensitivity"},
+        {"id": "B", "text": "Naloxone–hyperglycemia; vitamin K–hyperkalemia; diphenhydramine–bradycardia"},
+        {"id": "C", "text": "All three treat heparin-induced thrombocytopenia"},
+        {"id": "D", "text": "All three are first-line antiarrhythmics"},
+    ],
+    correct="A",
+    page=589,
+    chapter="Medication Dispensing and Distribution",
+    explanationCorrect="The chapter lists diphenhydramine for hypersensitivity, naloxone for potential oversedation, and vitamin K for warfarin-associated over-anticoagulation—examples of clinically triggered rescue/monitoring logic alongside broader clinical alerts.",
+    explanationWrong={
+        "B": "Those pairings do not match the listed indications.",
+        "C": "HIT is not treated with this trio.",
+        "D": "They are not antiarrhythmic first-line agents.",
+    },
+)
+
+# --- Pathophys ---
+add(
+    id="q083",
+    question="Congestion versus hyperemia is best distinguished how?",
+    choices=[
+        {"id": "A", "text": "Congestion is active increased inflow (inflammation); hyperemia is passive impaired drainage"},
+        {"id": "B", "text": "Congestion is passive interrupted drainage (e.g., valvular stenosis, varicose veins); hyperemia is active increased flow (e.g., acute inflammation)"},
+        {"id": "C", "text": "Both terms mean hemorrhage into tissue (hematoma)"},
+        {"id": "D", "text": "Hyperemia is synonymous with infarction"},
+    ],
+    correct="B",
+    page=635,
+    chapter="Clinical Pathophysiology",
+    explanationCorrect="Congestion is passive backup of blood (valve stenosis proximal chamber overload; chronic varicose veins). Hyperemia is active increased flow, as in acute inflammation. Hemorrhage/hematoma is escape/accumulation of blood, a separate process.",
+    explanationWrong={
+        "A": "The active/passive labels are reversed.",
+        "C": "Hematoma is hemorrhage into tissue, not the congestion/hyperemia distinction.",
+        "D": "Infarction is ischemic necrosis, not a synonym for hyperemia.",
+    },
+)
+add(
+    id="q084",
+    question="Endothelial nitric oxide versus endothelin in blood-pressure control are described as which pair, and how might oxidative stress raise BP?",
+    choices=[
+        {"id": "A", "text": "NO is a potent vasodilator; endothelin is a vasoconstrictor; oxidative stress may cause NO deficiency"},
+        {"id": "B", "text": "NO is a vasoconstrictor; endothelin is the sole vasodilator"},
+        {"id": "C", "text": "Both are inactive peptides with no vascular effect"},
+        {"id": "D", "text": "ANP constricts vessels by increasing NO synthase only"},
+    ],
+    correct="A",
+    page=643,
+    chapter="Clinical Pathophysiology",
+    explanationCorrect="Endothelium releases NO (vasodilator, pressure-responsive) and endothelin (vasoconstrictor, stimulated by angiotensin II, vasopressin, norepinephrine). Oxidative stress may produce NO deficiency and hypertension. ANP’s vascular effect in this passage is Na/K-ATPase inhibition raising intracellular Na/Ca and inducing vasoconstriction—an additional, separate mechanism.",
+    explanationWrong={
+        "B": "NO/endothelin roles are reversed.",
+        "C": "They are central vasoactive endothelial products.",
+        "D": "ANP is not described as acting solely via increased NOS in this excerpt.",
+    },
+)
+add(
+    id="q085",
+    question="Diabetic ketoacidosis and immune-mediated beta-cell destruction are most characteristic of which diabetes type?",
+    choices=[
+        {"id": "A", "text": "Type 2 diabetes mellitus"},
+        {"id": "B", "text": "Type 1 diabetes mellitus"},
+        {"id": "C", "text": "Gestational diabetes only"},
+        {"id": "D", "text": "Drug-induced diabetes only"},
+    ],
+    correct="B",
+    page=649,
+    chapter="Clinical Pathophysiology",
+    explanationCorrect="DKA occurs most frequently in type 1 DM, which results from immune-mediated destruction of pancreatic beta cells.",
+    explanationWrong={
+        "A": "Type 2 is primarily insulin resistance/relative deficiency; DKA is less typical.",
+        "C": "GDM is pregnancy-associated insulin resistance, not autoimmune beta-cell loss as the primary mechanism here.",
+        "D": "Drug-induced diabetes is a separate category.",
+    },
+)
+
+# --- Prevention / assessment / therapeutics / tox ---
+add(
+    id="q086",
+    question="To prevent neural-tube defects, what folic-acid intakes are recommended for pregnancy versus women of childbearing age?",
+    choices=[
+        {"id": "A", "text": "Pregnant: 600 mcg/day synthetic folic acid plus food folate; childbearing age: 400 mcg/day"},
+        {"id": "B", "text": "Both groups: 40 mcg/day is sufficient"},
+        {"id": "C", "text": "Pregnant women should avoid all folate"},
+        {"id": "D", "text": "Only vitamin B12 2.4 mcg replaces folate in pregnancy"},
+    ],
+    correct="A",
+    page=659,
+    chapter="Health Promotion and Disease Prevention",
+    explanationCorrect="Pregnant women should take 600 mcg/day of synthetic folic acid in addition to food folate; women of childbearing age should take 400 mcg/day. Separately, adults >50 need 2.4 mcg/day B12 (crystalline form absorbable despite reduced natural-B12 absorption).",
+    explanationWrong={
+        "B": "40 mcg is far below the stated recommendations.",
+        "C": "Folate is specifically indicated to prevent NTD/spina bifida/encephalopathy.",
+        "D": "B12 does not replace pregnancy folate recommendations.",
+    },
+)
+add(
+    id="q087",
+    question="High-intensity statin therapy is defined as an expected LDL-C reduction of more than 50%. Which regimens meet that definition here?",
+    choices=[
+        {"id": "A", "text": "Atorvastatin 10 mg or pravastatin 10 mg"},
+        {"id": "B", "text": "Atorvastatin 40–80 mg or rosuvastatin 20–40 mg"},
+        {"id": "C", "text": "Simvastatin 5 mg only"},
+        {"id": "D", "text": "Any statin regardless of dose"},
+    ],
+    correct="B",
+    page=667,
+    chapter="Health Promotion and Disease Prevention",
+    explanationCorrect="High-intensity statins (>50% LDL-C reduction) include atorvastatin 40–80 mg and rosuvastatin 20–40 mg. Statin benefit may extend beyond LDL lowering. Pregnancy is a listed contraindication; age, prior intolerance, and interactions raise ADE risk.",
+    explanationWrong={
+        "A": "Those doses are not the high-intensity pair specified.",
+        "C": "Low-dose simvastatin is not high-intensity.",
+        "D": "Intensity is dose- and agent-specific.",
+    },
+)
+add(
+    id="q088",
+    question="In a SOAP note, which content belongs in the Subjective versus Objective sections?",
+    choices=[
+        {"id": "A", "text": "Subjective: patient-reported symptoms, observations, and medication list; Objective: measurable data such as labs and vital signs"},
+        {"id": "B", "text": "Subjective: the clinician’s assessment diagnosis; Objective: the patient’s feelings only"},
+        {"id": "C", "text": "Both sections are identical free text with no distinction"},
+        {"id": "D", "text": "SOAP notes cannot support the PPCP plan step"},
+    ],
+    correct="A",
+    page=687,
+    chapter="Patient Assessment",
+    explanationCorrect="Subjective information is what the patient reports (feelings, observations, current Rx/OTC/supplements). Objective includes measured health data. SOAP’s four sections organize each visit and can support PPCP planning. Closing the interview includes summarizing, discussing follow-up, inviting questions, and writing an organized note.",
+    explanationWrong={
+        "B": "Assessment is the A of SOAP, not subjective; objective is not limited to feelings.",
+        "C": "The four sections are meant to be identifiable.",
+        "D": "The text states SOAP can be used in the PPCP cycle.",
+    },
+)
+add(
+    id="q089",
+    question="A falsely elevated potassium is classically caused by which preanalytic problem, and a falsely high sodium is not caused by which of the following?",
+    choices=[
+        {"id": "A", "text": "Hemolysis raises measured K+; hyperglycemia can lower (not raise) measured sodium via dilutional effect—false-high Na is not attributed to hyperglycemia here"},
+        {"id": "B", "text": "Eating leafy greens always falsely raises K+"},
+        {"id": "C", "text": "ACE inhibitors never affect glucose readings"},
+        {"id": "D", "text": "Malnutrition increases BUN the same way dehydration does"},
+    ],
+    correct="A",
+    page=701,
+    chapter="Patient Assessment",
+    explanationCorrect="Hemolysis releases intracellular potassium, causing spuriously high serum K+. Hyperglycemia is listed among causes of false sodium disturbance (typically lowering Na), not as a cause of false-high sodium. Malnutrition does not increase BUN the way dehydration, high protein breakdown, or burns do.",
+    explanationWrong={
+        "B": "Dietary potassium is not the hemolysis artifact.",
+        "C": "The chapter’s glucose item set treats ACE inhibitors differently from steroids/loops regarding false-high glucose—this option is a distractor, not the K+/Na teaching point.",
+        "D": "Malnutrition is the condition that does not increase BUN in that item.",
+    },
+)
+add(
+    id="q090",
+    question="Target INR for most patients on warfarin is which range, and which dietary factor can lower INR?",
+    choices=[
+        {"id": "A", "text": "INR 2–3 for most; vitamin K–rich leafy greens can lower INR"},
+        {"id": "B", "text": "INR < 1 is the therapeutic warfarin target"},
+        {"id": "C", "text": "INR 8–10 is desired; rifampin raises INR"},
+        {"id": "D", "text": "INR is unrelated to hepatic clotting-factor synthesis"},
+    ],
+    correct="A",
+    page=695,
+    chapter="Patient Assessment",
+    explanationCorrect="Normal INR is <1; most warfarin patients are targeted to 2–3. INR reflects liver-made clotting factors. Leafy greens (vitamin K) and inducers such as rifampin, barbiturates, cholestyramine, and cyclosporine are associated with lower INR; some inhibitors (ciprofloxacin, TMP, fluconazole, erythromycin, omeprazole) are associated with higher INR.",
+    explanationWrong={
+        "B": "INR <1 is the non-anticoagulated reference, not the usual warfarin goal.",
+        "C": "INR 8–10 is dangerous over-anticoagulation; rifampin is associated with low, not high, INR here.",
+        "D": "INR specifically assesses hepatic clotting-factor activity.",
+    },
+)
+add(
+    id="q091",
+    question="For COPD, GOLD-based initial pharmacologic steps described here begin with which approach?",
+    choices=[
+        {"id": "A", "text": "High-dose oral corticosteroid plus theophylline as first-line in all patients"},
+        {"id": "B", "text": "SABA as needed plus a long-acting bronchodilator (LABA or long-acting anticholinergic such as tiotropium); add the alternate long-acting class if needed"},
+        {"id": "C", "text": "Omalizumab for all GOLD stages regardless of allergy"},
+        {"id": "D", "text": "ICS monotherapy before any bronchodilator"},
+    ],
+    correct="B",
+    page=717,
+    chapter="Clinical Pharmacology and Therapeutics",
+    explanationCorrect="COPD initial therapy is SABA prn plus a long-acting bronchodilator (LABA or LAMA/tiotropium), then a second long-acting agent from the other class if needed. Inhaler technique education is essential. (Asthma stepping, by contrast, adds ICS then LABA, with omalizumab reserved for allergic patients not controlled on high-dose ICS+LABA.)",
+    explanationWrong={
+        "A": "Systemic steroids/theophylline are not the described first step for all COPD.",
+        "C": "Omalizumab is an asthma add-on for allergic patients, not universal COPD care.",
+        "D": "Bronchodilators, not ICS monotherapy, start the COPD sequence given.",
+    },
+)
+add(
+    id="q092",
+    question="Severe hospital Clostridium difficile diarrhea is most appropriately treated with which regimen among these options?",
+    choices=[
+        {"id": "A", "text": "IV vancomycin"},
+        {"id": "B", "text": "Oral vancomycin"},
+        {"id": "C", "text": "IV metronidazole as the preferred sole severe-disease therapy"},
+        {"id": "D", "text": "Amoxicillin"},
+    ],
+    correct="B",
+    page=731,
+    chapter="Clinical Pharmacology and Therapeutics",
+    explanationCorrect="Severe C. difficile–associated diarrhea in a hospitalized patient is treated with oral vancomycin (IV vancomycin does not achieve reliable gut levels). Oral metronidazole is a milder-disease option in older frameworks, not the preferred severe-hospital choice here.",
+    explanationWrong={
+        "A": "IV vancomycin is not the colonic therapy of choice.",
+        "C": "IV metronidazole is not the most appropriate severe-case pick in this item set.",
+        "D": "Amoxicillin can precipitate C. difficile; it is not treatment.",
+    },
+)
+add(
+    id="q093",
+    question="Which vitamin in green leafy vegetables can antagonize warfarin, and which vitamin is given to prevent Wernicke–Korsakoff syndrome in alcoholism?",
+    choices=[
+        {"id": "A", "text": "Vitamin K antagonizes warfarin; thiamine prevents Wernicke–Korsakoff"},
+        {"id": "B", "text": "Vitamin D antagonizes warfarin; niacin prevents Wernicke–Korsakoff"},
+        {"id": "C", "text": "Vitamin E antagonizes warfarin; pyridoxine prevents Wernicke–Korsakoff"},
+        {"id": "D", "text": "Vitamin A antagonizes warfarin; folic acid prevents Wernicke–Korsakoff"},
+    ],
+    correct="A",
+    page=731,
+    chapter="Clinical Pharmacology and Therapeutics",
+    explanationCorrect="Vitamin K in leafy greens can counteract warfarin. Thiamine is given to prevent Wernicke–Korsakoff syndrome in patients with alcoholism.",
+    explanationWrong={
+        "B": "Vitamin D and niacin are the wrong pair for these two problems.",
+        "C": "Vitamin E and pyridoxine are not the pair taught here.",
+        "D": "Vitamin A and folate are not the warfarin/Wernicke pair given.",
+    },
+)
+add(
+    id="q094",
+    question="Phenytoin monitoring and toxicity teaching includes which cluster of concerns?",
+    choices=[
+        {"id": "A", "text": "Serum concentrations when available, CBC, LFTs; CNS effects (ataxia, nystagmus, seizures) and severe rashes (SJS/TEN)"},
+        {"id": "B", "text": "Only urine eosinophils; no mucocutaneous risk"},
+        {"id": "C", "text": "Hyperkalemia as the hallmark toxicity without neurologic signs"},
+        {"id": "D", "text": "No laboratory monitoring is ever useful"},
+    ],
+    correct="A",
+    page=725,
+    chapter="Clinical Pharmacology and Therapeutics",
+    explanationCorrect="Phenytoin: monitor levels if available, CBC, and LFTs. Toxicities include CNS changes (ataxia, nystagmus, seizures) and severe rashes including SJS/TEN. Carbamazepine similarly needs levels, CBC, LFTs, and sodium (hyponatremia).",
+    explanationWrong={
+        "B": "Severe rashes are explicitly listed.",
+        "C": "Neurologic and dermatologic toxicities are emphasized, not hyperkalemia as the hallmark.",
+        "D": "Concentration, CBC, and LFT monitoring are recommended.",
+    },
+)
+add(
+    id="q095",
+    question="N-acetylcysteine treats acetaminophen poisoning primarily by which mechanism?",
+    choices=[
+        {"id": "A", "text": "Chelating parent acetaminophen in plasma"},
+        {"id": "B", "text": "Acting as a sulfhydryl surrogate for intracellular glutathione, preventing/treating toxicity from the reactive metabolite"},
+        {"id": "C", "text": "Irreversibly inhibiting COX-2 in hepatocytes"},
+        {"id": "D", "text": "Blocking muscarinic receptors"},
+    ],
+    correct="B",
+    page=747,
+    chapter="Toxicology",
+    explanationCorrect="Acetylcysteine is a sulfhydryl surrogate for glutathione, interacting with the toxic metabolite so a less harmful product forms—used for both acute and supratherapeutic APAP exposures.",
+    explanationWrong={
+        "A": "It is not described as a plasma chelator of parent drug.",
+        "C": "COX-2 inhibition is not the antidote mechanism.",
+        "D": "Muscarinic blockade is atropine’s role in cholinergic crisis.",
+    },
+)
+add(
+    id="q096",
+    question="In organophosphate/'nerve agent' poisoning, atropine and pralidoxime are complementary because they do which of the following?",
+    choices=[
+        {"id": "A", "text": "Atropine competitively blocks muscarinic receptors; pralidoxime reactivates phosphorylated acetylcholinesterase and is given with atropine"},
+        {"id": "B", "text": "Both chelate the insecticide in the gut only"},
+        {"id": "C", "text": "Pralidoxime blocks muscarinic receptors; atropine phosphorylates AChE"},
+        {"id": "D", "text": "Neither affects cholinergic tone"},
+    ],
+    correct="A",
+    page=747,
+    chapter="Toxicology",
+    explanationCorrect="Pralidoxime reactivates phosphorylated AChE, protects enzyme from further inhibition, and is given IV/IM with atropine. Atropine competitively blocks muscarinic (parasympathetic) receptors to treat cholinergic excess.",
+    explanationWrong={
+        "B": "These are systemic antidotes, not mere GI chelators.",
+        "C": "Mechanisms are reversed in that option.",
+        "D": "Both directly counter cholinergic toxicity.",
+    },
+)
+add(
+    id="q097",
+    question="U.S. poison-control access and function are best summarized how?",
+    choices=[
+        {"id": "A", "text": "1-800-222-1222, 24/7 for public and professionals; centers assess if poisoning exists, advise first aid, refer, follow outcomes, and provide prevention materials—they do not dispatch their own ambulances as a core listed service"},
+        {"id": "B", "text": "Public access only during business hours; professionals 24/7"},
+        {"id": "C", "text": "Centers exist solely to run mass-spectrometry labs on unknown pills for walk-ins"},
+        {"id": "D", "text": "There is no national number; each hospital must be called separately"},
+    ],
+    correct="A",
+    page=739,
+    chapter="Toxicology",
+    explanationCorrect="Nationwide 1-800-222-1222 routes to the local center 24 hours every day for anyone. Centers determine whether a true poisoning occurred, recommend first aid, refer, monitor progress/outcomes, document, and offer prevention programs—not ambulance dispatch or routine chemical analysis as their defining operations.",
+    explanationWrong={
+        "B": "The public also has 24/7 access.",
+        "C": "Analytic chemistry is not the listed core mission.",
+        "D": "A national number is explicitly provided.",
+    },
+)
+add(
+    id="q098",
+    question="Child-resistant (safety) caps are required for which grouping, with which notable exceptions?",
+    choices=[
+        {"id": "A", "text": "Aspirin, ibuprofen, acetaminophen, and most oral prescription drugs; exceptions include birth-control pills and nitroglycerin"},
+        {"id": "B", "text": "Topical cosmetics only"},
+        {"id": "C", "text": "All inhalers and all injectables without exception"},
+        {"id": "D", "text": "Only Schedule I substances"},
+    ],
+    correct="A",
+    page=739,
+    chapter="Toxicology",
+    explanationCorrect="Safety caps are required for aspirin, ibuprofen, acetaminophen, and all oral prescription drugs with specified exceptions such as oral contraceptives and nitroglycerin.",
+    explanationWrong={
+        "B": "The requirement is about oral drugs/OTC analgesics listed, not cosmetics.",
+        "C": "The exceptions and dosage-form scope are not stated that way.",
+        "D": "Schedule I drugs are not legally prescribed oral products in usual practice.",
+    },
+)
+add(
+    id="q099",
+    question="Warfarin monitoring should include INR at least monthly (more often when starting or titrating) plus hematocrit/bleeding signs. Which interaction pattern is emphasized?",
+    choices=[
+        {"id": "A", "text": "TMP–SMX and amiodarone can alter warfarin metabolism/INR; antiplatelets add bleeding risk independently"},
+        {"id": "B", "text": "No drugs affect INR"},
+        {"id": "C", "text": "Only topical steroids change INR"},
+        {"id": "D", "text": "Digoxin is the preferred INR antidote"},
+    ],
+    correct="A",
+    page=725,
+    chapter="Clinical Pharmacology and Therapeutics",
+    explanationCorrect="Warfarin has many interactions that change metabolism/INR (examples: TMP–SMX, amiodarone) or increase bleeding directly (antiplatelets). Digoxin monitoring is a separate NTI story (levels, Cr, K, Mg, Ca, ECG).",
+    explanationWrong={
+        "B": "Interactions are a central teaching point.",
+        "C": "Systemic metabolic interactors are the examples given.",
+        "D": "Vitamin K addresses over-anticoagulation; digoxin is not an INR antidote.",
+    },
+)
+add(
+    id="q100",
+    question="People older than 50 years are encouraged to meet which daily vitamin B12 intake, and why is the crystalline form preferred?",
+    choices=[
+        {"id": "A", "text": "2.4 mcg/day; crystalline B12 can still be absorbed when absorption of food-bound B12 declines with age"},
+        {"id": "B", "text": "24 mg/day; only liver-bound B12 works"},
+        {"id": "C", "text": "No B12 is needed after age 50"},
+        {"id": "D", "text": "400 mcg/day, the same as folate for all men"},
+    ],
+    correct="A",
+    page=659,
+    chapter="Health Promotion and Disease Prevention",
+    explanationCorrect="Adults >50 should meet the 2.4 mcg/day RDA for B12 because absorption of naturally occurring vitamin declines; the crystalline form remains absorbable.",
+    explanationWrong={
+        "B": "The RDA given is 2.4 mcg, not 24 mg.",
+        "C": "Need persists; absorption of food-bound vitamin falls.",
+        "D": "400 mcg/day is the childbearing-age folate figure, not the B12 RDA.",
+    },
+)
+
+out = Path(r"D:\_Coding\AI_GAMES\pharmacy-quiz\public")
+out.mkdir(parents=True, exist_ok=True)
+path = out / "questions.json"
+path.write_text(json.dumps(Q, indent=2, ensure_ascii=False), encoding="utf-8")
+print(f"wrote {len(Q)} questions to {path}")
+pages = sorted({q["page"] for q in Q})
+print("unique pages", len(pages), "range", pages[0], "-", pages[-1])
+print("chapters", len({q["chapter"] for q in Q}))
