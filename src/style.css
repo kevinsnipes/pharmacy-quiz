@@ -52,6 +52,95 @@ body {
   padding: 12px 18px 80px;
 }
 
+html.login,
+html.login body {
+  min-height: 100%;
+  min-height: 100dvh;
+}
+
+html.login body {
+  background: #07090e;
+}
+
+html.login #app {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  min-height: 100dvh;
+}
+
+.login-wrap {
+  min-height: 100dvh;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 28px 16px;
+}
+
+.login-veil {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 14, 0.55), rgba(5, 8, 14, 0.72) 45%, rgba(5, 8, 14, 0.88)),
+    radial-gradient(700px 400px at 50% 20%, rgba(212, 175, 55, 0.12), transparent 60%);
+}
+
+.login-panel {
+  position: relative;
+  z-index: 1;
+  width: min(440px, 100%);
+  padding: 28px 24px 24px;
+  border-radius: 20px;
+  border: 1px solid rgba(212, 175, 55, 0.28);
+  background: rgba(10, 16, 24, 0.78);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+}
+
+.login-panel h1 {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  margin-bottom: 18px;
+}
+
+.save-list {
+  display: grid;
+  gap: 16px;
+}
+
+.save-block {
+  display: grid;
+  gap: 8px;
+}
+
+.save-slot {
+  width: 100%;
+  background: linear-gradient(180deg, #d4af37, #b8902a);
+  color: #1a1404;
+  border: 0;
+  border-radius: 12px;
+  padding: 16px 18px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.save-slot:hover {
+  filter: brightness(1.06);
+}
+
+.save-tip {
+  margin: 0;
+  padding: 0 4px;
+  color: var(--gold-soft);
+  font-size: 0.88rem;
+  line-height: 1.45;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.6);
+}
+
 .book-bar {
   position: sticky;
   top: 0;
@@ -743,15 +832,17 @@ html.phone .pdf-stage {
   max-height: calc(100dvh - 72px);
 }
 
-html.phone .slot-grid {
-  gap: 10px;
+html.phone .login-wrap {
+  padding: 16px 12px;
+  align-items: end;
 }
 
-html.phone .slot-btn {
-  min-height: 96px;
-  padding: 14px 8px;
+html.phone .login-panel {
+  width: 100%;
+  padding: 22px 16px 20px;
 }
 
-html.phone .slot-num {
-  font-size: 1.7rem;
+html.phone .save-slot {
+  min-height: 52px;
+  font-size: 1.1rem;
 }

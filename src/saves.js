@@ -4,13 +4,9 @@ const SLOT_IDS = {
   1: "6a7d479c88d77103e82654a8",
   2: "6a7d47aa88d77103e82654a9",
   3: "6a7d47aa88d77103e82654aa",
-  4: "6a7d47ab88d77103e82654ab",
-  5: "6a7d47ac88d77103e82654ac",
-  6: "6a7d47ad88d77103e82654ad",
-  7: "6a7d47ae88d77103e82654ae",
-  8: "6a7d47ae88d77103e82654af",
-  9: "6a7d47b088d77103e82654b0",
 };
+
+export const SLOT_COUNT = 3;
 
 function localKey(slot) {
   return `fpgee-slot-${slot}`;
@@ -24,6 +20,7 @@ export function emptySave(slot) {
     setIds: [],
     answers: [],
     notice: "",
+    studiedMs: 0,
   };
 }
 
@@ -39,6 +36,7 @@ export function snapshotFromState(state) {
       correct: Boolean(a.correct),
     })),
     notice: state.notice || "",
+    studiedMs: Number(state.studiedMs) || 0,
   };
 }
 
@@ -89,9 +87,9 @@ export async function listSlots() {
     const rows = await fetchJson(API_BASE);
     const bySlot = {};
     for (const row of rows || []) {
-      if (row.slot >= 1 && row.slot <= 9) bySlot[row.slot] = row;
+      if (row.slot >= 1 && row.slot <= SLOT_COUNT) bySlot[row.slot] = row;
     }
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9].map((slot) => {
+    return [1, 2, 3].map((slot) => {
       const cloud = bySlot[slot];
       if (cloud) {
         writeLocal(slot, cloud);
@@ -100,7 +98,7 @@ export async function listSlots() {
       return readLocal(slot) || emptySave(slot);
     });
   } catch {
-    return [1, 2, 3, 4, 5, 6, 7, 8, 9].map((slot) => readLocal(slot) || emptySave(slot));
+    return [1, 2, 3].map((slot) => readLocal(slot) || emptySave(slot));
   }
 }
 

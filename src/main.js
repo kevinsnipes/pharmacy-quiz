@@ -12,6 +12,7 @@ let questionBank = [];
 let saveTimer = null;
 let lastSaved = null;
 let saveStatus = "";
+let studyClockStart = 0;
 
 function isPhone() {
   const ua = navigator.userAgent || "";
@@ -36,9 +37,14 @@ window.addEventListener("resize", () => {
   if (next !== phoneMode && lastState) render(lastState);
   else syncPhoneClass();
 });
-window.addEventListener("orientationchange", () => {
-  if (lastState) render(lastState);
-  else syncPhoneClass();
+document.addEventListener("visibilitychange", () => {
+  if (!lastState || lastState.screen !== "quiz") return;
+  if (document.hidden) {
+    consumeStudyTime(lastState);
+    studyClockStart = 0;
+  } else {
+    studyClockStart = Date.now();
+  }
 });
 
 function shuffle(items) {
@@ -79,13 +85,32 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
-function formatSavedAt(ts) {
-  if (!ts) return "Empty";
-  const delta = Date.now() - ts;
-  if (delta < 60_000) return "Saved just now";
-  if (delta < 3_600_000) return `Saved ${Math.floor(delta / 60_000)} min ago`;
-  if (delta < 86_400_000) return `Saved ${Math.floor(delta / 3_600_000)} hr ago`;
-  return `Saved ${new Date(ts).toLocaleDateString()}`;
+function formatStudyTime(ms) {
+  const total = Math.max(0, Math.floor(Number(ms) || 0));
+  const hours = Math.floor(total / 3_600_000);
+  const mins = Math.floor((total % 3_600_000) / 60_000);
+  const secs = Math.floor((total % 60_000) / 1000);
+  if (hours > 0) return `${hours}h ${mins}m`;
+  if (mins > 0) return `${mins}m ${secs}s`;
+  return `${secs}s`;
+}
+
+function formatLastSaved(ts) {
+  if (!ts) return "Never";
+  return new Date(ts).toLocaleString(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function consumeStudyTime(state) {
+  if (!state || state.screen !== "quiz") return;
+  const extra = studyClockStart ? Date.now() - studyClockStart : 0;
+  studyClockStart = Date.now();
+  state.studiedMs = (Number(state.studiedMs) || 0) + extra;
 }
 
 function stopAutosave() {
@@ -110,6 +135,7 @@ function setSaveStatus(text) {
 
 async function flushSave(state, force = true) {
   if (!state || state.screen !== "quiz") return;
+  consumeStudyTime(state);
   const snap = snapshotFromState(state);
   if (!force && sameSnapshot(snap, lastSaved)) return;
   try {
@@ -146,8 +172,10 @@ function restoreFromSave(slot, save, extraNotice = "") {
     set,
     answers,
     mastered,
+    studiedMs: Number(save.studiedMs) || 0,
     notice,
   };
+  studyClockStart = Date.now();
   lastSaved = { ...emptySave(slot), ...save, slot: Number(slot) };
   startAutosave();
   window.scrollTo({ top: 0, behavior: "smooth" });
@@ -157,6 +185,7 @@ function restoreFromSave(slot, save, extraNotice = "") {
 function render(state) {
   lastState = state;
   const phone = syncPhoneClass();
+  document.documentElement.classList.toggle("login", state.screen === "gate");
   if (state.screen === "gate") {
     renderGate(state);
     return;
@@ -281,39 +310,38 @@ function render(state) {
 
 function renderGate(state) {
   const slots = state.slots || [];
+  const bg = `${import.meta.env.BASE_URL}login-bg.png`;
   app.innerHTML = `
-    <header class="masthead slot-screen">
-      <p class="kicker">FPGEE review quiz</p>
-      <h1>Choose a save slot</h1>
-      <p class="lede">
-        Enter <strong>1–9</strong>. That number is your save file on every device — phone, computer, anywhere.
-        Pool progress, the current 20 questions, and checked answers all restore. Auto-save runs every 5 seconds.
-      </p>
-      ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
-      <div class="slot-grid">
-        ${[1, 2, 3, 4, 5, 6, 7, 8, 9]
-          .map((n) => {
-            const info = slots.find((s) => Number(s.slot) === n) || emptySave(n);
-            const mastered = Array.isArray(info.mastered) ? info.mastered.length : 0;
-            const used = Boolean(info.updatedAt) || mastered > 0 || (info.setIds || []).length > 0;
-            return `
-              <button class="slot-btn ${used ? "used" : ""}" type="button" data-slot="${n}">
-                <span class="slot-num">${n}</span>
-                <span class="slot-meta">${used ? `${mastered} mastered` : "Empty"}</span>
-                <span class="slot-meta">${used ? formatSavedAt(info.updatedAt) : "Tap to start"}</span>
-              </button>`;
-          })
-          .join("")}
+    <div class="login-wrap" style="background-image:url('${bg}')">
+      <div class="login-veil"></div>
+      <div class="login-panel">
+        <p class="kicker">FPGEE review</p>
+        <h1>Load Game</h1>
+        ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
+        <div class="save-list">
+          ${[1, 2, 3]
+            .map((n) => {
+              const info = slots.find((s) => Number(s.slot) === n) || emptySave(n);
+              return `
+                <div class="save-block">
+                  <button class="save-slot" type="button" data-slot="${n}">Save Slot ${n}</button>
+                  <p class="save-tip">
+                    Time spent studying: ${formatStudyTime(info.studiedMs)}<br />
+                    Last saved: ${formatLastSaved(info.updatedAt)}
+                  </p>
+                </div>`;
+            })
+            .join("")}
+        </div>
       </div>
-      <p class="footnote">The textbook PDF is still loaded once per device. Quiz progress is what syncs with the slot number.</p>
-    </header>
+    </div>
   `;
 
   app.querySelectorAll("[data-slot]").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const slot = Number(btn.dataset.slot);
       btn.disabled = true;
-      app.querySelector(".lede").textContent = `Loading slot ${slot}…`;
+      app.querySelector(".login-panel h1").textContent = `Loading slot ${slot}…`;
       try {
         const save = await loadSlot(slot);
         restoreFromSave(slot, save, `Loaded save slot ${slot}.`);
@@ -442,7 +470,7 @@ function revealHtml(q, index, ans) {
 
 async function showGate(notice = "") {
   stopAutosave();
-  let slots = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => emptySave(n));
+  let slots = [1, 2, 3].map((n) => emptySave(n));
   try {
     slots = await listSlots();
   } catch {
