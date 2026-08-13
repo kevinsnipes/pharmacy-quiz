@@ -143,7 +143,7 @@ async function flushSave(state, force = true) {
     lastSaved = await saveSlot(snap);
     setSaveStatus(`Slot ${state.slot} saved`);
   } catch {
-    setSaveStatus("Cloud save failed — kept on this device, retrying");
+    setSaveStatus("Saved on this device — cloud retrying");
   }
 }
 
