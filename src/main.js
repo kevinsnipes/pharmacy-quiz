@@ -44,7 +44,10 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+let lastState = null;
+
 function render(state) {
+  lastState = state;
   const checkedCount = state.answers.filter((a) => a.checked).length;
   const correctCount = state.answers.filter((a) => a.checked && a.correct).length;
   const remaining = state.bank.filter((q) => !state.mastered.includes(q.id)).length;
@@ -55,6 +58,21 @@ function render(state) {
   const poolEmpty = remaining === 0;
 
   app.innerHTML = `
+    <div class="book-bar ${hasTextbook() ? "ready" : ""}">
+      <div class="book-copy">
+        <strong>${hasTextbook() ? "Textbook ready in this browser" : "Load textbook PDF"}</strong>
+        <span>${
+          hasTextbook()
+            ? "After you check an answer, use Open page to jump there and highlight the source."
+            : "Choose your copy of The APhA Complete Review for the FPGEE (pharmacy_book.pdf). It is stored only in this browser so source links can open the page and highlight the answer."
+        }</span>
+      </div>
+      <div class="book-actions">
+        <label class="regen" for="pdf-file">${hasTextbook() ? "Replace PDF" : "Load textbook PDF"}</label>
+        <input id="pdf-file" class="file-input" type="file" accept="application/pdf,.pdf" />
+        ${hasTextbook() ? `<button class="ghost" type="button" id="clear-pdf">Remove PDF</button>` : ""}
+      </div>
+    </div>
     <header class="masthead">
       <p class="kicker">Professional pharmacy practice quiz</p>
       <h1>FPGEE Review: 20-Question Challenge</h1>
@@ -62,13 +80,9 @@ function render(state) {
         A pool of <strong>${state.bank.length}</strong> unique items covers the full textbook.
         Each session draws 20 at random from questions you have not yet answered correctly.
         Correct items leave the pool until every question is mastered; missed items are shuffled back in.
-        The copyrighted book is not hosted online — load your own PDF once, then source links open that page and highlight the answer passage.
       </p>
       <div class="controls">
         <button class="regen" type="button" id="regen">Regenerate questions</button>
-        <button class="ghost" type="button" id="load-pdf">${hasTextbook() ? "Textbook loaded" : "Load textbook PDF"}</button>
-        ${hasTextbook() ? `<button class="ghost" type="button" id="clear-pdf">Remove PDF</button>` : ""}
-        <input id="pdf-file" type="file" accept="application/pdf,.pdf" hidden />
       </div>
       <p class="meta">${remaining} remaining in pool · ${masteredN}/${state.bank.length} mastered · ${state.set.length} this session</p>
       ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
@@ -144,7 +158,6 @@ function bind(state) {
   });
 
   const fileInput = document.getElementById("pdf-file");
-  document.getElementById("load-pdf").addEventListener("click", () => fileInput.click());
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
@@ -271,13 +284,16 @@ async function boot() {
   const { mastered } = loadMastery();
   const known = new Set(bank.map((q) => q.id));
   const filtered = mastered.filter((id) => known.has(id));
+  startSession(bank, filtered);
   try {
     const blob = await loadPdfBlob();
-    if (blob) await loadTextbookFromBlob(blob);
+    if (blob) {
+      await loadTextbookFromBlob(blob);
+      if (lastState) render(lastState);
+    }
   } catch {
     /* ignore stale pdf */
   }
-  startSession(bank, filtered);
 }
 
 boot();
