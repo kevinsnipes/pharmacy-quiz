@@ -569,6 +569,51 @@ button {
   font-size: 0.82rem;
 }
 
+.slot-screen .lede {
+  max-width: 58ch;
+}
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.slot-btn {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  background: #101929;
+  color: var(--ink);
+  border: 1px solid #2a3a52;
+  border-radius: 16px;
+  padding: 16px 10px 14px;
+  min-height: 108px;
+}
+
+.slot-btn:hover {
+  border-color: var(--gold);
+}
+
+.slot-btn.used {
+  border-color: rgba(212, 175, 55, 0.45);
+  background: rgba(212, 175, 55, 0.08);
+}
+
+.slot-num {
+  font-family: "Libre Baskerville", Georgia, serif;
+  font-size: 2rem;
+  color: var(--gold-soft);
+  line-height: 1;
+}
+
+.slot-meta {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-align: center;
+}
+
 @media (max-width: 640px) {
   #app {
     padding: 12px 14px 64px;
@@ -698,6 +743,15 @@ html.phone .pdf-stage {
   max-height: calc(100dvh - 72px);
 }
 
-html.phone .footnote {
-  font-size: 0.78rem;
+html.phone .slot-grid {
+  gap: 10px;
+}
+
+html.phone .slot-btn {
+  min-height: 96px;
+  padding: 14px 8px;
+}
+
+html.phone .slot-num {
+  font-size: 1.7rem;
 }

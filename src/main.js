@@ -1,21 +1,17 @@
 import "./style.css";
-import { loadMastery, saveMastery, savePdfBlob, loadPdfBlob, clearPdfBlob } from "./storage.js";
+import { savePdfBlob, loadPdfBlob, clearPdfBlob } from "./storage.js";
 import { hasTextbook, loadTextbookFromBlob, openSourcePage, unloadTextbook } from "./pdfViewer.js";
-import {
-  loadStudy,
-  saveStudy,
-  makeStudyId,
-  unionIds,
-  parseIncoming,
-  resumeUrl,
-  writeUrl,
-} from "./progress.js";
+import { listSlots, loadSlot, saveSlot, snapshotFromState, sameSnapshot, emptySave } from "./saves.js";
 
 const SESSION_SIZE = 20;
 const app = document.querySelector("#app");
 
 let phoneMode = false;
 let lastState = null;
+let questionBank = [];
+let saveTimer = null;
+let lastSaved = null;
+let saveStatus = "";
 
 function isPhone() {
   const ua = navigator.userAgent || "";
@@ -37,11 +33,8 @@ function syncPhoneClass() {
 syncPhoneClass();
 window.addEventListener("resize", () => {
   const next = isPhone();
-  if (next !== phoneMode && lastState) {
-    render(lastState);
-  } else {
-    syncPhoneClass();
-  }
+  if (next !== phoneMode && lastState) render(lastState);
+  else syncPhoneClass();
 });
 window.addEventListener("orientationchange", () => {
   if (lastState) render(lastState);
@@ -66,17 +59,6 @@ function remainingPool(bank, mastered, excludeIds = []) {
   return fresh.length ? fresh : open;
 }
 
-function persist(state) {
-  try {
-    const id = saveStudy(state.studyId, state.mastered);
-    state.studyId = id;
-    saveMastery(state.mastered);
-    writeUrl(id, state.mastered);
-  } catch {
-    state.notice = state.notice || "Could not save locally. Copy the continue link so you do not lose progress.";
-  }
-}
-
 function pickSet(bank, mastered, excludeIds = []) {
   let pool = remainingPool(bank, mastered, excludeIds);
   let reset = false;
@@ -97,9 +79,89 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+function formatSavedAt(ts) {
+  if (!ts) return "Empty";
+  const delta = Date.now() - ts;
+  if (delta < 60_000) return "Saved just now";
+  if (delta < 3_600_000) return `Saved ${Math.floor(delta / 60_000)} min ago`;
+  if (delta < 86_400_000) return `Saved ${Math.floor(delta / 3_600_000)} hr ago`;
+  return `Saved ${new Date(ts).toLocaleDateString()}`;
+}
+
+function stopAutosave() {
+  if (saveTimer) {
+    clearInterval(saveTimer);
+    saveTimer = null;
+  }
+}
+
+function startAutosave() {
+  stopAutosave();
+  saveTimer = setInterval(() => {
+    if (lastState?.screen === "quiz") void flushSave(lastState, false);
+  }, 5000);
+}
+
+function setSaveStatus(text) {
+  saveStatus = text;
+  const el = document.getElementById("save-status");
+  if (el) el.textContent = text;
+}
+
+async function flushSave(state, force = true) {
+  if (!state || state.screen !== "quiz") return;
+  const snap = snapshotFromState(state);
+  if (!force && sameSnapshot(snap, lastSaved)) return;
+  try {
+    setSaveStatus(`Saving slot ${state.slot}…`);
+    lastSaved = await saveSlot(snap);
+    setSaveStatus(`Slot ${state.slot} saved`);
+  } catch {
+    setSaveStatus("Cloud save failed — kept on this device, retrying");
+  }
+}
+
+function restoreFromSave(slot, save, extraNotice = "") {
+  const known = new Map(questionBank.map((q) => [q.id, q]));
+  const mastered = (save.mastered || []).filter((id) => known.has(id));
+  let set = (save.setIds || []).map((id) => known.get(id)).filter(Boolean);
+  let answers = Array.isArray(save.answers) ? save.answers : [];
+  let notice = extraNotice;
+  if (set.length !== SESSION_SIZE) {
+    const picked = pickSet(questionBank, mastered, []);
+    set = picked.set;
+    answers = set.map(() => ({ selected: null, checked: false, correct: false }));
+    if (picked.reset) notice = "This slot had finished the pool, so it was reset.";
+  } else {
+    answers = set.map((_, i) => ({
+      selected: answers[i]?.selected ?? null,
+      checked: Boolean(answers[i]?.checked),
+      correct: Boolean(answers[i]?.correct),
+    }));
+  }
+  const state = {
+    screen: "quiz",
+    slot: Number(slot),
+    bank: questionBank,
+    set,
+    answers,
+    mastered,
+    notice,
+  };
+  lastSaved = { ...emptySave(slot), ...save, slot: Number(slot) };
+  startAutosave();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  render(state);
+}
+
 function render(state) {
   lastState = state;
   const phone = syncPhoneClass();
+  if (state.screen === "gate") {
+    renderGate(state);
+    return;
+  }
+
   const checkedCount = state.answers.filter((a) => a.checked).length;
   const correctCount = state.answers.filter((a) => a.checked && a.correct).length;
   const remaining = state.bank.filter((q) => !state.mastered.includes(q.id)).length;
@@ -138,38 +200,16 @@ function render(state) {
       <p class="kicker">Professional pharmacy practice quiz</p>
       <h1>${phone ? "FPGEE 20-Question Challenge" : "FPGEE Review: 20-Question Challenge"}</h1>
       <p class="lede copy-pc">
-        A pool of <strong>${state.bank.length}</strong> unique items covers the full textbook.
-        Each session draws 20 at random from questions you have not yet answered correctly.
-        Correct items leave the pool until every question is mastered; missed items are shuffled back in.
+        Save slot <strong>${state.slot}</strong> syncs to every device. Progress auto-saves every 5 seconds,
+        including the current 20 questions and which answers you already checked.
       </p>
       <p class="lede copy-phone">
-        20 random items from ${state.bank.length}. Correct answers leave the pool; misses go back in.
+        Slot ${state.slot} · auto-saves every 5 seconds on any device.
       </p>
       <div class="controls">
         <button class="regen" type="button" id="regen">Regenerate questions</button>
-      </div>
-      <div class="study-bar">
-        <div>
-          <p class="study-label">Your study ID (no password)</p>
-          <p class="study-id" id="study-id">${escapeHtml(state.studyId || "")}</p>
-          <p class="study-help copy-pc">Same ID + continue link restores progress on your phone. The textbook PDF is still loaded once per device.</p>
-          <p class="study-help copy-phone">Paste a continue link from your computer, or copy this device’s link to keep progress.</p>
-        </div>
-        <div class="study-actions">
-          <button class="ghost" type="button" id="copy-link">Copy continue link</button>
-          <button class="ghost" type="button" id="toggle-qr">Phone QR</button>
-        </div>
-        <form class="study-form" id="study-form">
-          <label for="study-input">Continue on this device</label>
-          <div class="study-row">
-            <input id="study-input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Paste study ID or continue link" />
-            <button class="regen" type="submit">Continue</button>
-          </div>
-        </form>
-        <div class="qr-wrap ${state.showQr ? "" : "hidden"}" id="qr-wrap">
-          <img alt="QR code to continue this quiz on another device" width="180" height="180" src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(resumeUrl(state.studyId, state.mastered))}" />
-          <p>Scan with your phone camera.</p>
-        </div>
+        <button class="ghost" type="button" id="change-slot">Change save slot</button>
+        <span class="meta" id="save-status">${escapeHtml(saveStatus || `Slot ${state.slot}`)}</span>
       </div>
       <p class="meta">${remaining} remaining in pool · ${masteredN}/${state.bank.length} mastered · ${state.set.length} this session</p>
       ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
@@ -236,12 +276,71 @@ function render(state) {
     </p>
   `;
 
-  bind(state);
+  bindQuiz(state);
 }
 
-function bind(state) {
+function renderGate(state) {
+  const slots = state.slots || [];
+  app.innerHTML = `
+    <header class="masthead slot-screen">
+      <p class="kicker">FPGEE review quiz</p>
+      <h1>Choose a save slot</h1>
+      <p class="lede">
+        Enter <strong>1–9</strong>. That number is your save file on every device — phone, computer, anywhere.
+        Pool progress, the current 20 questions, and checked answers all restore. Auto-save runs every 5 seconds.
+      </p>
+      ${state.notice ? `<p class="notice">${escapeHtml(state.notice)}</p>` : ""}
+      <div class="slot-grid">
+        ${[1, 2, 3, 4, 5, 6, 7, 8, 9]
+          .map((n) => {
+            const info = slots.find((s) => Number(s.slot) === n) || emptySave(n);
+            const mastered = Array.isArray(info.mastered) ? info.mastered.length : 0;
+            const used = Boolean(info.updatedAt) || mastered > 0 || (info.setIds || []).length > 0;
+            return `
+              <button class="slot-btn ${used ? "used" : ""}" type="button" data-slot="${n}">
+                <span class="slot-num">${n}</span>
+                <span class="slot-meta">${used ? `${mastered} mastered` : "Empty"}</span>
+                <span class="slot-meta">${used ? formatSavedAt(info.updatedAt) : "Tap to start"}</span>
+              </button>`;
+          })
+          .join("")}
+      </div>
+      <p class="footnote">The textbook PDF is still loaded once per device. Quiz progress is what syncs with the slot number.</p>
+    </header>
+  `;
+
+  app.querySelectorAll("[data-slot]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const slot = Number(btn.dataset.slot);
+      btn.disabled = true;
+      app.querySelector(".lede").textContent = `Loading slot ${slot}…`;
+      try {
+        const save = await loadSlot(slot);
+        restoreFromSave(slot, save, `Loaded save slot ${slot}.`);
+        void flushSave(lastState, true);
+      } catch {
+        restoreFromSave(slot, emptySave(slot), `Started save slot ${slot} (cloud unreachable; will keep retrying).`);
+      }
+    });
+  });
+}
+
+function bindQuiz(state) {
   document.getElementById("regen").addEventListener("click", () => {
-    startSession(state.bank, state.mastered, state.set.map((q) => q.id));
+    const { set, reset } = pickSet(state.bank, state.mastered, state.set.map((q) => q.id));
+    state.set = set;
+    state.answers = set.map(() => ({ selected: null, checked: false, correct: false }));
+    state.notice = reset
+      ? "Every question had been answered correctly. The pool is reset and a new random 20 is ready."
+      : "";
+    render(state);
+    void flushSave(state, true);
+  });
+
+  document.getElementById("change-slot").addEventListener("click", async () => {
+    await flushSave(state, true);
+    stopAutosave();
+    await showGate("Saved slot " + state.slot + ". Pick a number to continue.");
   });
 
   const fileInput = document.getElementById("pdf-file");
@@ -271,6 +370,7 @@ function bind(state) {
       if (state.answers[index].checked) return;
       state.answers[index].selected = btn.dataset.choice;
       render(state);
+      void flushSave(state, true);
       const next = app.querySelector(`[data-index="${index}"]`);
       if (next) next.scrollIntoView({ block: "nearest" });
     });
@@ -286,9 +386,9 @@ function bind(state) {
       ans.correct = ans.selected === q.correct;
       if (ans.correct && !state.mastered.includes(q.id)) {
         state.mastered.push(q.id);
-        persist(state);
       }
       render(state);
+      void flushSave(state, true);
       const next = app.querySelector(`[data-index="${index}"]`);
       if (next) next.scrollIntoView({ block: "nearest" });
     });
@@ -301,7 +401,7 @@ function bind(state) {
       try {
         if (!hasTextbook()) {
           fileInput.click();
-          state.notice = "Select your FPGEE review PDF. After it loads, click the source link again to jump to the highlighted page.";
+          state.notice = "Select your FPGEE review PDF. After it loads, tap the source link again.";
           render(state);
           return;
         }
@@ -316,42 +416,6 @@ function bind(state) {
         render(state);
       }
     });
-  });
-
-  document.getElementById("copy-link").addEventListener("click", async () => {
-    const link = resumeUrl(state.studyId, state.mastered);
-    try {
-      await navigator.clipboard.writeText(link);
-      state.notice = "Continue link copied. Open it on your phone to keep this progress.";
-    } catch {
-      state.notice = `Copy this link: ${link}`;
-    }
-    render(state);
-  });
-
-  document.getElementById("toggle-qr").addEventListener("click", () => {
-    state.showQr = !state.showQr;
-    render(state);
-  });
-
-  document.getElementById("study-form").addEventListener("submit", (event) => {
-    event.preventDefault();
-    const incoming = parseIncoming(document.getElementById("study-input").value);
-    const studyId = incoming.studyId || state.studyId;
-    if (incoming.mastered.length) {
-      state.mastered = unionIds(state.mastered, incoming.mastered);
-    }
-    state.studyId = studyId;
-    persist(state);
-    startSession(
-      state.bank,
-      state.mastered,
-      state.set.map((q) => q.id),
-      studyId,
-      incoming.mastered.length
-        ? "Progress loaded. Correct answers from that link are in your pool."
-        : "Study ID saved on this device. Paste the full continue link to restore answers from another device."
-    );
   });
 }
 
@@ -376,54 +440,37 @@ function revealHtml(q, index, ans) {
   `;
 }
 
-function startSession(bank, mastered, excludeIds = [], studyId = lastState?.studyId, extraNotice = "") {
-  const { set, reset } = pickSet(bank, mastered, excludeIds);
-  const answers = set.map(() => ({ selected: null, checked: false, correct: false }));
-  const state = {
-    bank,
-    set,
-    answers,
-    mastered,
-    studyId: studyId || makeStudyId(),
-    showQr: Boolean(lastState?.showQr),
-    notice: reset
-      ? "Every question had been answered correctly. The pool is reset and a new random 20 is ready."
-      : extraNotice,
-  };
-  persist(state);
-  window.scrollTo({ top: 0, behavior: "smooth" });
-  render(state);
+async function showGate(notice = "") {
+  stopAutosave();
+  let slots = [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => emptySave(n));
+  try {
+    slots = await listSlots();
+  } catch {
+    /* empty summaries */
+  }
+  render({ screen: "gate", slots, notice });
 }
 
 async function boot() {
-  app.innerHTML = `<header class="masthead"><h1>Loading question pool…</h1></header>`;
+  app.innerHTML = `<header class="masthead"><h1>Loading…</h1></header>`;
   const url = `${import.meta.env.BASE_URL}questions.json`;
   const res = await fetch(url);
   if (!res.ok) {
     app.innerHTML = `<header class="masthead"><h1>Could not load questions.</h1><p class="lede">Failed to fetch ${url}</p></header>`;
     return;
   }
-  const bank = await res.json();
-  for (const q of bank) {
+  questionBank = await res.json();
+  for (const q of questionBank) {
     if (!q.pdfPage) q.pdfPage = Number(q.page) + 1;
     if (!q.sourceQuote) q.sourceQuote = "";
   }
-  const known = new Set(bank.map((q) => q.id));
-  const incoming = parseIncoming(window.location.href);
-  const local = loadStudy();
-  const legacy = loadMastery();
-  const studyId = incoming.studyId || local.studyId || makeStudyId();
-  const mastered = unionIds(incoming.mastered, local.mastered, legacy.mastered).filter((id) => known.has(id));
-  startSession(bank, mastered, [], studyId);
   try {
     const blob = await loadPdfBlob();
-    if (blob) {
-      await loadTextbookFromBlob(blob);
-      if (lastState) render(lastState);
-    }
+    if (blob) await loadTextbookFromBlob(blob);
   } catch {
     /* ignore stale pdf */
   }
+  await showGate();
 }
 
 boot();
